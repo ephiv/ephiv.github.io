@@ -2,6 +2,11 @@
     {
         "title": "hello",
         "content": "this is the first post of **ploki** \ni'm using **marked** for markdown parsing so i can write this using markdown\nif you want a classic demo:\n\n Header1\n=\nHeader2\n-\n1. ordered *italic*\n2. list ***bold and italic***\n- unordered\n- list\n> indent\n> \n+ plus\n* asterisk\n\n[redirect](index.html)\n\n![lorem picsum](https://picsum.photos/200)\n\n`inline`\n```py\nres = 'code block'\nprint(f'**res**')\n```\nok thanks for watching",
-        "date": "sat 3/8/25"
+        "date": "sun 3/8/25"
+    },
+    {
+        "title": "medai shaer",
+        "content": "problem: i don't want to send videos i record to streamble or youtube.\n\nfirst, youtube takes way too long to do that, and streamable has this stupid pricing thing\n\nso yeah don't judge if it doesn't work out",
+        "date": "mon 4/8/25"
     }
 ]
