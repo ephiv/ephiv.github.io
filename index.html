@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ploki</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!--hea..-->
+    <header id="header" class="shadow bg-light">
+        <nav class="container navbar">
+            <a href="/index.html" class="index text-dark">
+                ploki
+            </a>
+
+            <button class="toggle-button">
+                <span><i class="fas fa-bars"></i></span>
+            </button>
+
+            <div class="collapse">
+                <ul class="navbar-nav">
+                    <a href="https://github.com/ephiv" class="nav-link">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@xociz-hjU7" class="nav-link">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://discordapp.com/users/917070773619916850" class="nav-link">
+                        <i class="fab fa-discord"></i>
+                    </a>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <!--..der-->
+
+    <!--main..-->
+    <section id="site-main">
+        <div class="card">
+            <h2>title</h2>
+            <p>
+                content
+            </p>
+
+            <div style="display: flex; align-items: center; gap: 1em;">
+                <h5 class="text-secondary" style="margin: 0;">date</h5>
+                <button id="prev-post" class="nav-btn" aria-label="Previous Post">&lt;</button>
+                <button id="next-post" class="nav-btn" aria-label="Next Post">&gt;</button>
+            </div>
+        </div>
+    </section>
+    <!--..site-->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
