@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <title>Henry Nguyễn | Portfolio</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #045D5D;
+            --primary-dark: #024A4A;
+            --surface: #f8f8f8;
+            --text: #333;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -21,7 +32,7 @@
 
         .container {
             display: grid;
-            grid-template-columns: 280px 1fr 60px;
+            grid-template-columns: 280px 1fr 80px;
             grid-template-rows: auto 1fr;
             min-height: 100vh;
         }
@@ -29,7 +40,7 @@
         .image-section {
             grid-column: 1;
             grid-row: 1;
-            background-color: #045D5D;
+            background-color: var(--primary);
             padding: 40px;
             display: flex;
             align-items: center;
@@ -43,7 +54,7 @@
             font-family: 'Nunito', sans-serif;
             grid-column: 1;
             grid-row: 2;
-            background-color: #f8f8f8;
+            background-color: var(--surface);
             padding: 30px;
             position: sticky;
             top: 300px;
@@ -51,8 +62,15 @@
             overflow-y: auto;
         }
 
+        .profile-section h2,
+        .profile-item h3,
+        .main-content h1,
+        .main-content h2,
+        .cta h3 {
+            color: var(--primary);
+        }
+
         .profile-section h2 {
-            color: #045D5D;
             margin-bottom: 20px;
             font-size: 24px;
         }
@@ -62,15 +80,25 @@
         }
 
         .profile-item h3 {
-            color: #045D5D;
             font-size: 16px;
             margin-bottom: 8px;
         }
 
-        .profile-item p {
+        .profile-item p,
+        .profile-item a {
             font-size: 14px;
             line-height: 1.6;
             color: #666;
+        }
+
+        .profile-item a {
+            color: var(--primary-dark);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .profile-item a:hover {
+            text-decoration: underline;
         }
 
         .main-content {
@@ -80,22 +108,58 @@
             background-color: #FFFFFF;
         }
 
+        .section {
+            margin-bottom: 56px;
+            scroll-margin-top: 32px;
+        }
+
         .main-content h1 {
-            color: #045D5D;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
             font-size: 48px;
         }
 
         .main-content h2 {
-            color: #045D5D;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 32px;
         }
 
-        .main-content p {
+        .main-content p,
+        .main-content li {
             font-size: 18px;
             line-height: 1.8;
-            color: #333;
+            color: var(--text);
+        }
+
+        .lead {
+            max-width: 700px;
+        }
+
+        .project-list,
+        .resource-list {
+            margin-left: 20px;
+        }
+
+        .project-list li,
+        .resource-list li {
+            margin-bottom: 12px;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, #eaf6f6, #f6fbfb);
+            border-left: 5px solid var(--primary);
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .cta h3 {
+            margin-bottom: 12px;
+            font-size: 24px;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .cta ul {
+            margin-left: 20px;
+            color: var(--text);
         }
 
         .navigation {
@@ -109,7 +173,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 12px;
             padding: 20px 0;
         }
 
@@ -129,28 +193,66 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 6px;
         }
 
-        .nav-item:hover {
+        .nav-item:hover,
+        .nav-item:focus-visible {
             background-color: #f0f0f0;
+            outline: none;
         }
 
         .nav-item.active {
-            background-color: #045D5D;
+            background-color: var(--primary);
             color: #FFFFFF;
-            border-color: #045D5D;
+        }
+
+        @media (max-width: 980px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+
+            .image-section,
+            .profile-section,
+            .main-content,
+            .navigation {
+                grid-column: 1;
+                position: static;
+                height: auto;
+            }
+
+            .main-content {
+                grid-row: 3;
+                padding: 36px 28px;
+            }
+
+            .navigation {
+                grid-row: 4;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-evenly;
+                border-top: 1px solid #e6e6e6;
+            }
+
+            .nav-item {
+                writing-mode: horizontal-tb;
+                transform: none;
+                padding: 14px 10px;
+                flex: none;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="image-section">
-            <img src="avatar.jpg" style="width: 100%; outline: #024A4A solid 8px; border-radius: 8px;" alt="Illustration by Leef6010">
+            <img src="avatar.jpg" style="width: 100%; outline: var(--primary-dark) solid 8px; border-radius: 8px;" alt="Illustration by Leef6010">
         </div>
 
         <div class="profile-section">
             <h2>Profile</h2>
-            
+
             <div class="profile-item">
                 <h3>Name</h3>
                 <p>Henry Nguyễn</p>
@@ -158,7 +260,7 @@
 
             <div class="profile-item">
                 <h3>About</h3>
-                <p>Ambitious student getting into full-stack development & software</p>
+                <p>Ambitious student getting into full-stack development & software.</p>
             </div>
 
             <div class="profile-item">
@@ -170,21 +272,53 @@
             <div class="profile-item">
                 <h3>Socials</h3>
                 <p>
-                    <a href="https://youtube.com/@xociz-hJU7">YouTube</a> • 
-                    <a href="https://github.com/ephiv">GitHub</a> • 
+                    <a href="https://youtube.com/@xociz-hJU7">YouTube</a> •
+                    <a href="https://github.com/ephiv">GitHub</a> •
                     <a href="https://discordapp.com/users/917070773619916850">Discord</a>
                 </p>
             </div>
         </div>
 
-        <div class="main-content">
-            <h1>Wait</h1>
-        </div>
+        <main class="main-content">
+            <section class="section" id="home">
+                <h1>Hi, I'm Henry 👋</h1>
+                <p class="lead">This is a great start for a personal site. To make it more useful for visitors and recruiters, you can add project details, learning resources, and a clear "next steps" area.</p>
+            </section>
 
-        <nav class="navigation">
-            <a href="#" class="nav-item active">HOME</a>
-            <a href="#" class="nav-item">PROJECTS</a>
-            <a href="#" class="nav-item">RESOURCES</a>
+            <section class="section" id="projects">
+                <h2>Projects to Add</h2>
+                <ul class="project-list">
+                    <li><strong>Featured project cards</strong> with stack, screenshots, and GitHub/demo links.</li>
+                    <li><strong>Timeline format</strong> to show your growth from beginner to full-stack projects.</li>
+                    <li><strong>Case-study details</strong> like problem, approach, and what you learned.</li>
+                </ul>
+            </section>
+
+            <section class="section" id="resources">
+                <h2>Resources Section Ideas</h2>
+                <ul class="resource-list">
+                    <li>Books/courses you're currently following.</li>
+                    <li>Code snippets or mini notes from topics you learn.</li>
+                    <li>Links to your best repositories for quick review.</li>
+                </ul>
+            </section>
+
+            <section class="section cta" id="next-steps">
+                <h3>Good Next Upgrades</h3>
+                <ul>
+                    <li>Add a downloadable CV button.</li>
+                    <li>Show your current goals for the next 3 months.</li>
+                    <li>Add a "Now" section with what you're building this week.</li>
+                    <li>Include light/dark mode toggle.</li>
+                </ul>
+            </section>
+        </main>
+
+        <nav class="navigation" aria-label="Page sections">
+            <a href="#home" class="nav-item active">HOME</a>
+            <a href="#projects" class="nav-item">PROJECTS</a>
+            <a href="#resources" class="nav-item">RESOURCES</a>
+            <a href="#next-steps" class="nav-item">NEXT</a>
         </nav>
     </div>
 </body>
