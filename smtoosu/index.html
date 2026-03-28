@@ -3,301 +3,495 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sm → osz</title>
+<title>sm → osz · Henry Nguyễn</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
-
 :root {
-  --bg: #f5f4f0;
-  --surface: #ffffff;
-  --border: #d8d5ce;
-  --border-strong: #b5b0a6;
-  --text: #0d0d0b;
-  --muted: #7a766e;
-  --ok: #1c6e3d;
-  --ok-bg: #eaf5ee;
-  --err: #b91c1c;
-  --warn-bg: #fffbeb;
-  --processing: #1e40af;
+  --teal:        #045D5D;
+  --teal-dark:   #024A4A;
+  --teal-light:  #eaf5f5;
+  --teal-mid:    #078080;
+  --bg:          #ffffff;
+  --surface:     #f8f8f8;
+  --border:      #e8e8e8;
+  --border-mid:  #d0d0d0;
+  --text:        #111111;
+  --muted:       #888888;
+  --ok:          #045D5D;
+  --ok-bg:       #eaf5f5;
+  --err:         #b91c1c;
+  --proc:        #2563eb;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 13px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
   line-height: 1.6;
   min-height: 100vh;
 }
-::selection { background: var(--text); color: var(--bg); }
 
-.wrap { max-width: 680px; margin: 0 auto; padding: 64px 24px 96px; }
+::selection { background: var(--teal); color: #fff; }
+
+/* ── Layout ── */
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 72px 32px 100px;
+}
+
+/* ── Back link ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 52px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--teal); }
+.back-link::before { content: '←'; font-size: 13px; }
 
 /* ── Header ── */
-header { margin-bottom: 52px; }
+header { margin-bottom: 56px; }
+
 .wordmark {
-  font-size: 10px; font-weight: 400; color: var(--muted);
-  letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
-h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
-h1 em { font-style: normal; color: var(--muted); font-weight: 300; }
+
+h1 {
+  font-family: 'Constantia', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--teal);
+  line-height: 1.1;
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.header-desc {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 460px;
+  line-height: 1.7;
+}
 
 /* ── Section label ── */
 .sl {
-  font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--muted);
-  margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.sl::after { content:''; flex:1; height:1px; background:var(--border); }
+.sl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* ── Section ── */
-.section { margin-bottom: 32px; }
+.section { margin-bottom: 36px; }
 
 /* ── Drop zone ── */
 .drop-zone {
-  border: 1px solid var(--border);
+  border: 2px dashed var(--border-mid);
   background: var(--surface);
-  padding: 36px 24px;
+  padding: 48px 32px;
   text-align: center;
   cursor: default;
-  transition: border-color 0.15s, background 0.15s;
-  position: relative;
+  transition: border-color 0.2s, background 0.2s;
 }
-.drop-zone.over   { border-color: var(--text); background: #eeede8; }
-.drop-zone.filled { border-color: var(--ok); background: var(--ok-bg); }
+.drop-zone.over   { border-color: var(--teal); background: var(--ok-bg); }
+.drop-zone.filled { border-color: var(--teal); border-style: solid; background: var(--ok-bg); }
 
-.di { font-size: 24px; margin-bottom: 8px; display: block; }
-.dp { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-.dh { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+.di {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+  color: var(--teal);
+}
+.dp {
+  font-family: 'Constantia', serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.dh {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
 
-.drop-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.drop-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 input[type=file] { display: none; }
 
 /* ── Buttons ── */
 .btn {
-  border: 1px solid var(--border-strong); background: var(--bg);
-  color: var(--text); font-family: inherit; font-size: 11px;
-  font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-  padding: 7px 14px; cursor: pointer; transition: background 0.1s, border-color 0.1s;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 18px;
+  border: 2px solid var(--border-mid);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
-.btn:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn:hover { border-color: var(--teal); color: var(--teal); }
 .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.btn:disabled:hover { background: var(--bg); color: var(--text); border-color: var(--border-strong); }
+.btn:disabled:hover { border-color: var(--border-mid); color: var(--text); }
 
 .btn-primary {
-  width: 100%; padding: 13px 20px; background: var(--text); color: var(--bg);
-  border: none; font-family: inherit; font-size: 12px; font-weight: 500;
-  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
-  transition: opacity 0.12s; margin-top: 16px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px 24px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--teal);
+  color: #fff;
+  border: 2px solid var(--teal);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
-.btn-primary:hover { opacity: 0.8; }
-.btn-primary:disabled { opacity: 0.25; cursor: not-allowed; }
-.btn-primary:disabled:hover { opacity: 0.25; }
+.btn-primary:hover { background: transparent; color: var(--teal); }
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-primary:disabled:hover { background: var(--teal); color: #fff; }
 
 /* ── Queue ── */
-.queue { border: 1px solid var(--border); background: var(--surface); }
-.q-head {
-  display: grid; grid-template-columns: 14px 1fr auto 80px;
-  gap: 14px; padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
-  font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--muted); align-items: center;
+.queue {
+  border: 1px solid var(--border);
+  background: var(--bg);
 }
-.q-row {
-  display: grid; grid-template-columns: 14px 1fr auto 80px;
-  gap: 14px; padding: 10px 14px;
+
+.q-head {
+  display: grid;
+  grid-template-columns: 12px 1fr auto 80px;
+  gap: 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
-  align-items: center; transition: background 0.1s;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  align-items: center;
+  background: var(--surface);
+}
+
+.q-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto 80px;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background 0.15s;
 }
 .q-row:last-child { border-bottom: none; }
-.q-row:hover { background: var(--bg); }
+.q-row:hover { background: var(--surface); }
 
 .dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--border-strong); flex-shrink: 0;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border-mid);
+  flex-shrink: 0;
 }
-.dot.ok   { background: var(--ok); }
+.dot.ok   { background: var(--teal); }
 .dot.err  { background: var(--err); }
-.dot.proc { background: var(--processing); animation: blink .9s ease-in-out infinite; }
+.dot.proc { background: var(--proc); animation: blink .9s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-.q-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.q-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; font-weight: 300; }
-.q-meta  { font-size: 11px; color: var(--muted); text-align: right; white-space: nowrap; }
+.q-title {
+  font-family: 'Constantia', serif;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.q-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.q-meta  { font-size: 12px; color: var(--muted); text-align: right; white-space: nowrap; }
 .q-act   { text-align: right; }
 
 .btn-dl {
-  font-family: inherit; font-size: 11px; font-weight: 500;
-  background: none; border: 1px solid var(--ok); color: var(--ok);
-  padding: 4px 10px; cursor: pointer; transition: all .12s; text-decoration: none;
-  display: inline-block; letter-spacing: .04em;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: none;
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  padding: 5px 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.15s, color 0.15s;
 }
-.btn-dl:hover { background: var(--ok); color: white; }
-.err-msg { font-size: 10px; color: var(--err); }
+.btn-dl:hover { background: var(--teal); color: #fff; }
+
+.err-msg { font-size: 11px; color: var(--err); }
 
 .q-footer {
-  padding: 9px 14px; border-top: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center;
-  background: var(--bg);
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
 }
-.q-count { font-size: 11px; color: var(--muted); }
+.q-count { font-size: 12px; color: var(--muted); }
 
 /* ── Options ── */
-.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width:480px) { .opts { grid-template-columns: 1fr; } }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .opts { grid-template-columns: 1fr; } }
 
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.field input, .field select {
-  font-family: inherit; font-size: 13px; background: var(--surface);
-  border: 1px solid var(--border); color: var(--text);
-  padding: 7px 10px; outline: none; transition: border-color .12s;
-  appearance: none; -webkit-appearance: none; width: 100%;
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
-.field input:focus, .field select:focus { border-color: var(--text); }
+.field input, .field select {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+}
+.field input:focus, .field select:focus { border-color: var(--teal); }
 .field-full { grid-column: 1 / -1; }
 
-.chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
 .chip {
-  font-size: 10px; background: var(--bg); border: 1px solid var(--border);
-  padding: 2px 8px; cursor: pointer; color: var(--muted); transition: all .1s; user-select: none;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  padding: 3px 10px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: border-color 0.15s, color 0.15s;
+  user-select: none;
+  letter-spacing: 0.04em;
 }
-.chip:hover { border-color: var(--text); color: var(--text); }
+.chip:hover { border-color: var(--teal); color: var(--teal); }
 
-.preview { font-size: 11px; color: var(--muted); font-style: italic; min-height: 16px; margin-top: 2px; }
+.preview {
+  font-size: 12px;
+  color: var(--teal);
+  font-style: italic;
+  min-height: 18px;
+  margin-top: 4px;
+}
 
 /* ── Progress ── */
-.prog { height: 2px; background: var(--border); margin-top: 8px; display: none; overflow: hidden; }
-.prog-fill { height: 100%; background: var(--text); width: 0%; transition: width .3s ease; }
+.prog {
+  height: 3px;
+  background: var(--border);
+  margin-top: 10px;
+  display: none;
+  overflow: hidden;
+}
+.prog-fill { height: 100%; background: var(--teal); width: 0%; transition: width .3s ease; }
 
-/* ── Bulk DL ── */
+/* ── Bulk download ── */
 .bulk {
-  margin-top: 20px; padding: 16px 18px;
-  border: 1px solid var(--ok); background: var(--ok-bg);
-  display: none; align-items: center; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
+  margin-top: 24px;
+  padding: 20px 22px;
+  border: 1.5px solid var(--teal);
+  background: var(--ok-bg);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
 }
-.bulk-msg { font-size: 13px; font-weight: 500; color: var(--ok); }
-.bulk-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.bulk-msg {
+  font-family: 'Constantia', serif;
+  font-size: 17px;
+  color: var(--teal);
+}
+.bulk-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
 .btn-bulk {
-  font-family: inherit; font-size: 11px; font-weight: 500;
-  background: var(--ok); color: white; border: none;
-  padding: 9px 16px; cursor: pointer; letter-spacing: .08em;
-  text-transform: uppercase; transition: opacity .12s; white-space: nowrap;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--teal);
+  color: white;
+  border: none;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
 }
-.btn-bulk:hover { opacity: .8; }
+.btn-bulk:hover { opacity: 0.8; }
 
 /* ── Log ── */
 .logbox {
-  background: var(--surface); border: 1px solid var(--border);
-  padding: 12px 14px; font-size: 11px; max-height: 160px;
-  overflow-y: auto; margin-top: 16px; display: none; line-height: 2;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  font-size: 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 20px;
+  display: none;
+  line-height: 2;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-mid) transparent;
 }
 .logbox::-webkit-scrollbar { width: 3px; }
-.logbox::-webkit-scrollbar-thumb { background: var(--border-strong); }
+.logbox::-webkit-scrollbar-thumb { background: var(--border-mid); }
 .l-ok   { color: var(--ok); display: block; }
 .l-err  { color: var(--err); display: block; }
 .l-dim  { color: var(--muted); display: block; }
 .l-info { color: var(--text); display: block; }
 
 .hidden { display: none !important; }
+
+/* ── Divider ── */
+.teal-bar {
+  width: 40px;
+  height: 3px;
+  background: var(--teal);
+  margin-bottom: 40px;
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<header>
-  <div class="wordmark">Beatmap Converter</div>
-  <h1>.sm / .ssc <em>→</em> .osz</h1>
-</header>
+  <a href="../projects.html" class="back-link">Projects</a>
 
-<!-- Upload -->
-<div class="section">
-  <div class="sl">Input</div>
-  <div class="drop-zone" id="dz"
-       ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-    <span class="di">↓</span>
-    <div class="dp">Drop files or a folder here</div>
-    <div class="dh">Accepts .sm / .ssc · audio · background — singles or entire song packs</div>
-    <div class="drop-btns">
-      <button class="btn" onclick="document.getElementById('fi').click()">Select files</button>
-      <button class="btn" onclick="document.getElementById('fld').click()">Select folder</button>
-    </div>
-    <input type="file" id="fi" accept=".sm,.ssc,.mp3,.ogg,.wav,.flac,.png,.jpg,.jpeg,.bmp" multiple onchange="handleFiles(event)">
-    <input type="file" id="fld" webkitdirectory multiple onchange="handleFolder(event)">
-  </div>
-</div>
+  <header>
+    <div class="wordmark">Beatmap Converter</div>
+    <h1>.sm / .ssc <em>→</em> .osz</h1>
+    <p class="header-desc">Convert StepMania charts to osu!mania beatmaps. Drop your files below — singles, full packs, or entire song folders.</p>
+  </header>
 
-<!-- Queue -->
-<div class="section hidden" id="q-section">
-  <div class="sl">Queue</div>
-  <div class="queue">
-    <div class="q-head"><span></span><span>Song</span><span>Info</span><span style="text-align:right">Output</span></div>
-    <div id="q-rows"></div>
-    <div class="q-footer">
-      <span class="q-count" id="q-count">0 songs</span>
-      <button class="btn" onclick="clearAll()">Clear</button>
-    </div>
-  </div>
-</div>
-
-<!-- Options -->
-<div class="section hidden" id="opt-section">
-  <div class="sl">Options</div>
-  <div class="opts">
-    <div class="field field-full">
-      <label>Output Naming Template</label>
-      <input type="text" id="tmpl" value="{artist} - {title}" oninput="onTmplChange()">
-      <div class="chips">
-        <span class="chip" onclick="ins('{title}')">title</span>
-        <span class="chip" onclick="ins('{artist}')">artist</span>
-        <span class="chip" onclick="ins('{creator}')">creator</span>
-        <span class="chip" onclick="ins('{subtitle}')">subtitle</span>
-        <span class="chip" onclick="ins('{genre}')">genre</span>
-        <span class="chip" onclick="ins('{bpm}')">bpm</span>
+  <!-- Upload -->
+  <div class="section">
+    <div class="sl">Input</div>
+    <div class="drop-zone" id="dz"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      <span class="di">↓</span>
+      <div class="dp">Drop files or a folder here</div>
+      <div class="dh">Accepts .sm / .ssc · audio · background — singles or entire song packs</div>
+      <div class="drop-btns">
+        <button class="btn" onclick="document.getElementById('fi').click()">Select files</button>
+        <button class="btn" onclick="document.getElementById('fld').click()">Select folder</button>
       </div>
-      <div class="preview" id="preview"></div>
-    </div>
-    <div class="field">
-      <label>Fallback Creator</label>
-      <input type="text" id="creator" placeholder="used when CREDIT tag absent" oninput="onTmplChange()">
-    </div>
-    <div class="field">
-      <label>HP Drain</label>
-      <select id="hp">
-        <option value="5">5 — Easy</option>
-        <option value="7" selected>7 — Normal</option>
-        <option value="8">8 — Hard</option>
-        <option value="9">9 — Insane</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Overall Difficulty</label>
-      <select id="od">
-        <option value="6">6 — Easy</option>
-        <option value="7">7 — Normal</option>
-        <option value="8" selected>8 — Hard</option>
-        <option value="9">9 — Expert</option>
-      </select>
+      <input type="file" id="fi" accept=".sm,.ssc,.mp3,.ogg,.wav,.flac,.png,.jpg,.jpeg,.bmp" multiple onchange="handleFiles(event)">
+      <input type="file" id="fld" webkitdirectory multiple onchange="handleFolder(event)">
     </div>
   </div>
-  <button class="btn-primary" id="cvt-btn" onclick="runAll()">Convert &amp; Export</button>
-  <div class="prog" id="prog"><div class="prog-fill" id="pfill"></div></div>
-</div>
 
-<!-- Bulk download -->
-<div class="bulk" id="bulk">
-  <div>
-    <div class="bulk-msg" id="bulk-msg"></div>
-    <div class="bulk-sub" id="bulk-sub"></div>
+  <!-- Queue -->
+  <div class="section hidden" id="q-section">
+    <div class="sl">Queue</div>
+    <div class="queue">
+      <div class="q-head"><span></span><span>Song</span><span>Info</span><span style="text-align:right">Output</span></div>
+      <div id="q-rows"></div>
+      <div class="q-footer">
+        <span class="q-count" id="q-count">0 songs</span>
+        <button class="btn" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
   </div>
-  <button class="btn-bulk" id="bulk-btn">↓ Download all .zip</button>
-</div>
 
-<!-- Log -->
-<div class="logbox" id="logbox"></div>
+  <!-- Options -->
+  <div class="section hidden" id="opt-section">
+    <div class="sl">Options</div>
+    <div class="opts">
+      <div class="field field-full">
+        <label>Output Naming Template</label>
+        <input type="text" id="tmpl" value="{artist} - {title}" oninput="onTmplChange()">
+        <div class="chips">
+          <span class="chip" onclick="ins('{title}')">title</span>
+          <span class="chip" onclick="ins('{artist}')">artist</span>
+          <span class="chip" onclick="ins('{creator}')">creator</span>
+          <span class="chip" onclick="ins('{subtitle}')">subtitle</span>
+          <span class="chip" onclick="ins('{genre}')">genre</span>
+          <span class="chip" onclick="ins('{bpm}')">bpm</span>
+        </div>
+        <div class="preview" id="preview"></div>
+      </div>
+      <div class="field">
+        <label>Fallback Creator</label>
+        <input type="text" id="creator" placeholder="used when CREDIT tag absent" oninput="onTmplChange()">
+      </div>
+      <div class="field">
+        <label>HP Drain</label>
+        <select id="hp">
+          <option value="5">5 — Easy</option>
+          <option value="7" selected>7 — Normal</option>
+          <option value="8">8 — Hard</option>
+          <option value="9">9 — Insane</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Overall Difficulty</label>
+        <select id="od">
+          <option value="6">6 — Easy</option>
+          <option value="7">7 — Normal</option>
+          <option value="8" selected>8 — Hard</option>
+          <option value="9">9 — Expert</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" id="cvt-btn" onclick="runAll()">Convert &amp; Export</button>
+    <div class="prog" id="prog"><div class="prog-fill" id="pfill"></div></div>
+  </div>
+
+  <!-- Bulk download -->
+  <div class="bulk" id="bulk">
+    <div>
+      <div class="bulk-msg" id="bulk-msg"></div>
+      <div class="bulk-sub" id="bulk-sub"></div>
+    </div>
+    <button class="btn-bulk" id="bulk-btn">↓ Download all .zip (it takes a while, don't spam click)</button>
+  </div>
+
+  <!-- Log -->
+  <div class="logbox" id="logbox"></div>
 
 </div><!-- /wrap -->
 
@@ -355,7 +549,6 @@ function dirOf(rel) { const p=rel.split('/'); return p.length>1?p.slice(0,-1).jo
 // Group files → song objects
 // ═══════════════════════════════════
 async function groupFiles(files) {
-  // Ensure _rel is set
   for (const f of files) if (!f._rel) f._rel = f.webkitRelativePath || f.name;
 
   const smFiles  = files.filter(f => SM.has(ext(f.name)));
@@ -377,10 +570,8 @@ async function groupFiles(files) {
     try { parsed = parseSm(text); }
     catch(e) { log(`✗ Parse error in ${smf.name}: ${e.message}`, 'l-err'); continue; }
 
-    // Match audio: try metadata.music name first, then priority by ext
     const sibAud = sib(audFiles);
     const sibImg = sib(imgFiles);
-
     const audioFile = matchAudio(parsed.meta.music, sibAud);
     const bgFile    = matchBg(parsed.meta.background, sibImg);
 
@@ -388,7 +579,7 @@ async function groupFiles(files) {
       id: ++uid,
       smFile: smf, audioFile, bgFile,
       parsed,
-      status: 'pending', // pending | processing | done | error
+      status: 'pending',
       blob: null, error: null, outputName: null,
     });
   }
@@ -521,8 +712,8 @@ function parseNotes(noteData, keyCount, bpms, stops, offsetSec) {
 function makeOsu(song, chart, audioName, bgName, opts) {
   const {meta, bpms, stops} = song.parsed;
   const objs = parseNotes(chart.noteData, chart.keyCount, bpms, stops, meta.offset);
-  const b2ms = makeBeatToMs([...bpms].sort((a,b)=>a.beat-b.beat), [], meta.offset);
-  const tps  = [...bpms].sort((a,b)=>a.beat-b.beat).map(bp=>`${b2ms(bp.beat)},${(60000/bp.value).toFixed(6)},4,1,0,100,1,0`);
+  const b2ms  = makeBeatToMs([...bpms].sort((a,b)=>a.beat-b.beat), [], meta.offset);
+  const tps   = [...bpms].sort((a,b)=>a.beat-b.beat).map(bp=>`${b2ms(bp.beat)},${(60000/bp.value).toFixed(6)},4,1,0,100,1,0`);
   const creator = meta.credit || opts.creator || 'Unknown';
   const hitLines = objs.map(o => o.type==='tap'
     ? `${o.x},192,${o.ms},1,0,0:0:0:0:`
