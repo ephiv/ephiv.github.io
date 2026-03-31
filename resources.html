@@ -1,32 +1,607 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resources · Henry Nguyễn</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ephiv's resources</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Constantia', serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr 60px;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        /* ── Left panel: avatar ── */
+        .image-section {
+            grid-column: 1;
+            grid-row: 1;
+            background-color: #045D5D;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            height: 300px;
+            z-index: 10;
+        }
+
+        .image-section img {
+            width: 100%;
+            outline: #024A4A solid 8px;
+            border-radius: 8px;
+            transition: outline-color 0.3s ease;
+        }
+
+        .image-section img:hover { outline-color: #078080; }
+
+        /* ── Left panel: profile ── */
+        .profile-section {
+            font-family: 'Nunito', sans-serif;
+            grid-column: 1;
+            grid-row: 2;
+            background-color: #f8f8f8;
+            padding: 30px;
+            position: sticky;
+            top: 300px;
+            height: calc(100vh - 300px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
+        }
+
+        .profile-section::-webkit-scrollbar { width: 4px; }
+        .profile-section::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+        .profile-section h2 {
+            color: #045D5D;
+            margin-bottom: 20px;
+            font-size: 22px;
+            letter-spacing: 0.03em;
+        }
+
+        .profile-item { margin-bottom: 22px; }
+
+        .profile-item h3 {
+            color: #045D5D;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .profile-item p {
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: #555;
+        }
+
+        .profile-item a {
+            color: #045D5D;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .profile-item a:hover { opacity: 0.65; }
+
+        .contact-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .contact-label {
+            font-size: 11px;
+            color: #999;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            min-width: 38px;
+            margin-top: 1px;
+        }
+
+        .socials-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* ── Main content ── */
+        .main-content {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            padding: 60px 80px;
+            background-color: #FFFFFF;
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            margin-bottom: 56px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease 0.1s forwards;
+        }
+
+        .page-eyebrow {
+            font-family: 'Nunito', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #045D5D;
+            margin-bottom: 14px;
+        }
+
+        .page-header h1 {
+            font-family: 'Constantia', serif;
+            font-size: clamp(36px, 4vw, 54px);
+            color: #045D5D;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            margin-bottom: 16px;
+        }
+
+        .teal-bar {
+            width: 40px;
+            height: 3px;
+            background-color: #045D5D;
+            margin-bottom: 20px;
+        }
+
+        .page-header p {
+            font-family: 'Nunito', sans-serif;
+            font-size: 15px;
+            color: #777;
+            line-height: 1.75;
+            max-width: 460px;
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            font-family: 'Nunito', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            animation: fadeUp 0.5s ease 0.2s forwards;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: #eee; }
+
+        /* ── Pinterest / Masonry grid ── */
+        .masonry-grid {
+            columns: 3;
+            column-gap: 20px;
+        }
+
+        @media (max-width: 1100px) { .masonry-grid { columns: 2; } }
+        @media (max-width: 700px)  { .masonry-grid { columns: 1; } }
+
+        /* ── Resource card ── */
+        .resource-card {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            border: 1.5px solid #e8e8e8;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+            opacity: 0;
+            animation: fadeUp 0.6s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resource-card:nth-child(1) { animation-delay: 0.25s; }
+        .resource-card:nth-child(2) { animation-delay: 0.38s; }
+        .resource-card:nth-child(3) { animation-delay: 0.51s; }
+        .resource-card:nth-child(4) { animation-delay: 0.64s; }
+
+        .resource-card:hover {
+            border-color: #045D5D;
+            box-shadow: 0 8px 32px rgba(4, 93, 93, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .resource-card.wip {
+            border-style: dashed;
+            border-color: #ddd;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .resource-card.wip:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #ddd;
+        }
+
+        /* ── Document preview thumbnail ── */
+        .doc-preview {
+            background: #f7f9f9;
+            border-bottom: 1.5px solid #e8e8e8;
+            padding: 22px 22px 16px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .resource-card.wip .doc-preview {
+            background: #fafafa;
+            border-bottom-color: #eee;
+        }
+
+        /* Paper shadow layers (depth effect) */
+        .paper-stack {
+            position: relative;
+            width: 100%;
+            max-width: 160px;
+        }
+
+        .paper-stack::before,
+        .paper-stack::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            border-radius: 1px;
+            border: 1px solid #d4d4d4;
+            background: #fff;
+        }
+
+        .paper-stack::before {
+            left: 6px; right: -6px;
+            height: 100%;
+            background: #f0f0f0;
+            z-index: 1;
+        }
+
+        .paper-stack::after {
+            left: 3px; right: -3px;
+            height: 100%;
+            background: #f7f7f7;
+            z-index: 2;
+            bottom: -2.5px;
+        }
+
+        .resource-card.wip .paper-stack::before,
+        .resource-card.wip .paper-stack::after {
+            border-color: #e0e0e0;
+        }
+
+        /* The actual "paper" document */
+        .paper {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 1px;
+            padding: 14px 12px 12px;
+            position: relative;
+            z-index: 3;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .resource-card.wip .paper {
+            background: #fafafa;
+            border-color: #e4e4e4;
+        }
+
+        /* Corner fold */
+        .paper::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 16px; height: 16px;
+            background: linear-gradient(225deg, #e8e8e8 50%, transparent 50%);
+        }
+
+        .resource-card.wip .paper::after {
+            background: linear-gradient(225deg, #e2e2e2 50%, transparent 50%);
+        }
+
+        /* Faux text lines in document */
+        .doc-line {
+            height: 5px;
+            border-radius: 2px;
+            background: #e2e8e8;
+            margin-bottom: 6px;
+        }
+
+        .resource-card.wip .doc-line { background: #ebebeb; }
+
+        .doc-line.title-line {
+            background: #b2cece;
+            height: 7px;
+            margin-bottom: 10px;
+            width: 75%;
+        }
+
+        .resource-card.wip .doc-line.title-line { background: #ddd; }
+
+        .doc-line.short { width: 55%; }
+        .doc-line.medium { width: 80%; }
+        .doc-line.long   { width: 95%; }
+
+        /* The teal accent strip at the top of the paper */
+        .paper-accent {
+            height: 4px;
+            background: #045D5D;
+            margin: -14px -12px 10px;
+            border-radius: 0;
+        }
+
+        .resource-card.wip .paper-accent { background: #ccc; }
+
+        /* ── Card body / metadata ── */
+        .card-body {
+            padding: 18px 20px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-type {
+            font-family: 'Nunito', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #045D5D;
+        }
+
+        .resource-card.wip .card-type { color: #bbb; }
+
+        .card-title {
+            font-family: 'Constantia', serif;
+            font-size: 17px;
+            color: #111;
+            line-height: 1.25;
+        }
+
+        .resource-card.wip .card-title { color: #bbb; }
+
+        .card-desc {
+            font-family: 'Nunito', sans-serif;
+            font-size: 12.5px;
+            color: #888;
+            line-height: 1.65;
+        }
+
+        .resource-card.wip .card-desc { color: #ccc; }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .resource-card.wip .card-footer { border-top-color: #f5f5f5; }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            font-family: 'Nunito', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #045D5D;
+            background: #eaf5f5;
+            padding: 2px 8px;
+        }
+
+        .wip-badge {
+            font-family: 'Nunito', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #bbb;
+            background: #f4f4f4;
+            padding: 2px 8px;
+        }
+
+        .card-action {
+            font-family: 'Nunito', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #045D5D;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 0.2s;
+        }
+
+        .resource-card:hover .card-action { gap: 8px; }
+
+        /* ── Right navigation ── */
+        .navigation {
+            grid-column: 3;
+            grid-row: 1 / 3;
+            background-color: #FFFFFF;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid #f0f0f0;
+        }
+
+        .nav-item {
+            font-family: 'Nunito', sans-serif;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            padding: 20px 15px;
+            text-decoration: none;
+            color: #aaa;
+            background-color: #FFFFFF;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item:hover { color: #045D5D; background-color: #f8f8f8; }
+
+        .nav-item.active {
+            background-color: #045D5D;
+            color: #FFFFFF;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 40px;
+                grid-template-rows: auto auto 1fr;
+            }
+            .image-section   { grid-column:1; grid-row:1; height:180px; position:relative; }
+            .profile-section { grid-column:1; grid-row:2; position:relative; top:0; height:auto; }
+            .main-content    { grid-column:1; grid-row:3; padding:40px 24px; }
+            .navigation      { grid-column:2; grid-row:1/4; }
+            .masonry-grid    { columns: 1; }
+        }
+    </style>
 </head>
 <body>
-  <div class="site-shell markdown-page">
-    <nav class="site-nav">
-      <a href="index.html">Home</a>
-      <a href="projects.html">Projects</a>
-      <a href="resources.html" class="active">Resources</a>
-    </nav>
+    <div class="container">
 
-    <p class="eyebrow">Notes</p>
-    <h1>Resources</h1>
-    <p class="lead">A place for learning notes, references, and guides. This page is a living document and will grow over time.</p>
+        <!-- ── Avatar ── -->
+        <div class="image-section">
+            <img src="avatar.jpg" alt="Henry Nguyễn">
+        </div>
 
-    <section class="section-space">
-      <h2>Planned Sections</h2>
-      <ul>
-        <li>Development notes from personal projects.</li>
-        <li>Useful links for web development and tooling.</li>
-        <li>Step-by-step writeups for debugging and architecture decisions.</li>
-      </ul>
-    </section>
-  </div>
+        <!-- ── Profile sidebar ── -->
+        <div class="profile-section">
+            <h2>Profile</h2>
+
+            <div class="profile-item">
+                <h3>Name</h3>
+                <p>Henry Nguyễn</p>
+            </div>
+
+            <div class="profile-item">
+                <h3>About</h3>
+                <p>Ambitious student getting into full-stack development &amp; software</p>
+            </div>
+
+            <div class="profile-item">
+                <h3>Contact</h3>
+                <div class="contact-line">
+                    <span class="contact-label">Email</span>
+                    <p><a href="mailto:huan053660@gmail.com">huan053660@gmail.com</a></p>
+                </div>
+                <div class="contact-line">
+                    <span class="contact-label">Phone</span>
+                    <p>+84 0363-163-136</p>
+                </div>
+            </div>
+
+            <div class="profile-item">
+                <h3>Socials</h3>
+                <div class="socials-row">
+                    <a href="https://youtube.com/@xociz-hJU7" target="_blank" rel="noopener">↗ YouTube</a>
+                    <a href="https://github.com/ephiv" target="_blank" rel="noopener">↗ GitHub</a>
+                    <a href="https://discordapp.com/users/917070773619916850" target="_blank" rel="noopener">↗ Discord</a>
+                    <a href="https://bsky.app/profile/ephiv.bsky.social" target="_blank" rel="noopener">↗ Bluesky</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Main content ── -->
+        <div class="main-content">
+
+            <div class="page-header">
+                <div class="page-eyebrow">Downloads &amp; Docs</div>
+                <h1>Resources.</h1>
+                <div class="teal-bar"></div>
+                <p>Documents, templates, and files you can use.</p>
+            </div>
+
+            <div class="section-label">Available</div>
+
+            <div class="masonry-grid">
+
+                <div class="resource-card wip">
+                    <div class="doc-preview">
+                        <div class="paper-stack">
+                            <div class="paper">
+                                <div class="paper-accent"></div>
+                                <div class="doc-line title-line"></div>
+                                <div class="doc-line long"></div>
+                                <div class="doc-line medium"></div>
+                                <div class="doc-line short"></div>
+                                <div class="doc-line long"></div>
+                                <div class="doc-line medium"></div>
+                                <div class="doc-line short"></div>
+                                <div class="doc-line long"></div>
+                                <div class="doc-line medium"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span class="card-type">Document</span>
+                        <div class="card-title">Resume / CV</div>
+                        <p class="card-desc">Short CV since I don't have a work experience and university enrollment yet.</p>
+                        <div class="card-footer">
+                            <div class="card-tags">
+                                <span class="wip-badge">Essential Document</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─ Add more cards below this comment when ready ─ -->
+
+            </div>
+        </div>
+
+        <!-- ── Right navigation ── -->
+        <nav class="navigation">
+            <a href="index.html"    class="nav-item">HOME</a>
+            <a href="projects.html" class="nav-item">PROJECTS</a>
+            <a href="#"             class="nav-item active">RESOURCES</a>
+        </nav>
+
+    </div>
 </body>
 </html>
