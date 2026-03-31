@@ -15,32 +15,32 @@
     <a class="site-logo" href="../index.html" aria-label="Home">
       <img src="../avatar.jpg" alt="Site logo">
     </a>
-    <a href="../index.html">Home</a>
-    <a href="../projects.html" class="active">Projects</a>
-    <a href="../resources.html">Resources</a>
+    <a href="../index.html">home</a>
+    <a href="../projects.html" class="active">projects</a>
+    <a href="../resources.html">resources</a>
   </nav>
 
 <div class="wrap">
 
-  <a href="../projects.html" class="back-link">Projects</a>
+  <a href="../projects.html" class="back-link">projects</a>
 
   <header>
-    <div class="wordmark">Beatmap Converter</div>
+    <div class="wordmark">beatmap converter</div>
     <h1>.sm / .ssc <em>→</em> .osz</h1>
-    <p class="header-desc">Convert StepMania charts to osu!mania beatmaps. Drop your files below — singles, full packs, or entire song folders.</p>
+    <p class="header-desc">convert singles, full packs, entire song folders into packaged .osz</p>
   </header>
 
   <!-- Upload -->
   <div class="section">
-    <div class="sl">Input</div>
+    <div class="sl">input</div>
     <div class="drop-zone" id="dz"
          ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
       <span class="di">↓</span>
-      <div class="dp">Drop files or a folder here</div>
-      <div class="dh">Accepts .sm / .ssc · audio · background — singles or entire song packs</div>
+      <div class="dp">drop your files here</div>
+      <div class="dh">accepts .sm / .ssc · audio · background image — singles or entire song packs</div>
       <div class="drop-btns">
-        <button class="btn" onclick="document.getElementById('fi').click()">Select files</button>
-        <button class="btn" onclick="document.getElementById('fld').click()">Select folder</button>
+        <button class="btn" onclick="document.getElementById('fi').click()">select files</button>
+        <button class="btn" onclick="document.getElementById('fld').click()">select folder</button>
       </div>
       <input type="file" id="fi" accept=".sm,.ssc,.mp3,.ogg,.wav,.flac,.png,.jpg,.jpeg,.bmp" multiple onchange="handleFiles(event)">
       <input type="file" id="fld" webkitdirectory multiple onchange="handleFolder(event)">
@@ -49,23 +49,23 @@
 
   <!-- Queue -->
   <div class="section hidden" id="q-section">
-    <div class="sl">Queue</div>
+    <div class="sl">queue</div>
     <div class="queue">
-      <div class="q-head"><span></span><span>Song</span><span>Info</span><span class="q-head-right">Output</span></div>
+      <div class="q-head"><span></span><span>song</span><span>info</span><span class="q-head-right">output</span></div>
       <div id="q-rows"></div>
       <div class="q-footer">
         <span class="q-count" id="q-count">0 songs</span>
-        <button class="btn" onclick="clearAll()">Clear</button>
+        <button class="btn" onclick="clearAll()">clear</button>
       </div>
     </div>
   </div>
 
   <!-- Options -->
   <div class="section hidden" id="opt-section">
-    <div class="sl">Options</div>
+    <div class="sl">options</div>
     <div class="opts">
       <div class="field field-full">
-        <label>Output Naming Template</label>
+        <label>output naming</label>
         <input type="text" id="tmpl" value="{artist} - {title}" oninput="onTmplChange()">
         <div class="chips">
           <span class="chip" onclick="ins('{title}')">title</span>
@@ -78,25 +78,25 @@
         <div class="preview" id="preview"></div>
       </div>
       <div class="field">
-        <label>Fallback Creator</label>
+        <label>credit fallback</label>
         <input type="text" id="creator" placeholder="used when CREDIT tag absent" oninput="onTmplChange()">
       </div>
       <div class="field">
-        <label>HP Drain</label>
+        <label>hp drain</label>
         <select id="hp">
-          <option value="5">5 — Easy</option>
-          <option value="7" selected>7 — Normal</option>
-          <option value="8">8 — Hard</option>
-          <option value="9">9 — Insane</option>
+          <option value="5">5 — easy</option>
+          <option value="7" selected>7 — normal</option>
+          <option value="8">8 — hard</option>
+          <option value="9">9 — insane</option>
         </select>
       </div>
       <div class="field">
-        <label>Overall Difficulty</label>
+        <label>overall difficulty</label>
         <select id="od">
-          <option value="6">6 — Easy</option>
-          <option value="7">7 — Normal</option>
-          <option value="8" selected>8 — Hard</option>
-          <option value="9">9 — Expert</option>
+          <option value="6">6 — easy</option>
+          <option value="7">7 — normal</option>
+          <option value="8" selected>8 — hard</option>
+          <option value="9">9 — expert</option>
         </select>
       </div>
     </div>
@@ -105,7 +105,7 @@
     <div class="rates-block">
       <div class="rates-toggle-row" onclick="onRatesToggle()">
         <label class="rates-toggle-label" onclick="event.preventDefault()">
-          Generate rates for single-difficulty charts
+          generate rates for single-difficulty charts
           <span class="rates-toggle-badge">single-diff only</span>
         </label>
         <label class="toggle-switch" onclick="event.stopPropagation()">
@@ -116,22 +116,22 @@
 
       <div class="rates-opts hidden" id="rates-opts">
         <div class="field">
-          <label>Start Rate</label>
+          <label>start rate</label>
           <input type="number" id="rate-start" value="1.0" min="0.5" max="3.0" step="0.05" oninput="onRateTmplChange()">
         </div>
         <div class="field">
-          <label>Rate Step</label>
+          <label>rate step</label>
           <input type="number" id="rate-step" value="0.1" min="0.05" max="1.0" step="0.05" oninput="onRateTmplChange()">
         </div>
         <div class="field">
-          <label>Number of Rates</label>
+          <label>rate count</label>
           <input type="number" id="rate-count" value="4" min="1" max="20" step="1" oninput="onRateTmplChange()">
         </div>
         <div class="field">
           <!-- spacer on desktop -->
         </div>
         <div class="field" style="grid-column: 1 / -1">
-          <label>Difficulty Name Template</label>
+          <label>difficulty naming</label>
           <input type="text" id="rate-tmpl" value="{diff} {rate}x" oninput="onRateTmplChange()">
           <div class="chips">
             <span class="chip" onclick="insRate('{diff}')">diff</span>
@@ -144,8 +144,8 @@
     </div>
 
     <div style="display:flex; gap:10px; margin-top:20px;">
-      <button class="btn-primary" id="cvt-btn" onclick="runAll()" style="margin-top:0; flex:1;">Convert &amp; Export</button>
-      <button class="btn-cancel" id="cancel-btn" onclick="cancelConversion()">✕ Cancel</button>
+      <button class="btn-primary" id="cvt-btn" onclick="runAll()" style="margin-top:0; flex:1;">convert &amp; export</button>
+      <button class="btn-cancel" id="cancel-btn" onclick="cancelConversion()">✕ cancel</button>
     </div>
     <div class="prog" id="prog"><div class="prog-fill" id="pfill"></div></div>
   </div>
@@ -156,7 +156,7 @@
       <div class="bulk-msg" id="bulk-msg"></div>
       <div class="bulk-sub" id="bulk-sub"></div>
     </div>
-    <button class="btn-bulk" id="bulk-btn">↓ Download all .zip (it takes a while, don't spam click)</button>
+    <button class="btn-bulk" id="bulk-btn">↓ download .zip (it takes a while, don't spam click)</button>
   </div>
 
   <!-- Log -->
