@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sm → osz · Henry Nguyễn</title>
+<title>sm/ssc → osz</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -184,6 +184,24 @@ input[type=file] { display: none; }
 .btn-primary:hover { background: transparent; color: var(--teal); }
 .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
 .btn-primary:disabled:hover { background: var(--teal); color: #fff; }
+
+.btn-cancel {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 15px 22px;
+  background: transparent;
+  color: var(--err);
+  border: 2px solid var(--err);
+  cursor: pointer;
+  display: none;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.btn-cancel:hover { background: var(--err); color: #fff; }
 
 /* ── Queue ── */
 .queue {
@@ -394,6 +412,81 @@ input[type=file] { display: none; }
   background: var(--teal);
   margin-bottom: 40px;
 }
+
+/* ── Rates section ── */
+.rates-block {
+  margin-top: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+}
+
+.rates-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.rates-toggle-row:hover { background: #f0f0f0; }
+
+.rates-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+.rates-toggle-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--border);
+  padding: 2px 8px;
+}
+
+/* custom toggle switch */
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border-mid);
+  border-radius: 10px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--teal); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); }
+
+.rates-opts {
+  border-top: 1.5px solid var(--border);
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 520px) { .rates-opts { grid-template-columns: 1fr; } }
+.rates-opts.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -477,7 +570,53 @@ input[type=file] { display: none; }
         </select>
       </div>
     </div>
-    <button class="btn-primary" id="cvt-btn" onclick="runAll()">Convert &amp; Export</button>
+
+    <!-- Rates -->
+    <div class="rates-block">
+      <div class="rates-toggle-row" onclick="onRatesToggle()">
+        <label class="rates-toggle-label" onclick="event.preventDefault()">
+          Generate rates for single-difficulty charts
+          <span class="rates-toggle-badge">single-diff only</span>
+        </label>
+        <label class="toggle-switch" onclick="event.stopPropagation()">
+          <input type="checkbox" id="rates-enabled" onchange="onRatesToggle()">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="rates-opts hidden" id="rates-opts">
+        <div class="field">
+          <label>Start Rate</label>
+          <input type="number" id="rate-start" value="1.0" min="0.5" max="3.0" step="0.05" oninput="onRateTmplChange()">
+        </div>
+        <div class="field">
+          <label>Rate Step</label>
+          <input type="number" id="rate-step" value="0.1" min="0.05" max="1.0" step="0.05" oninput="onRateTmplChange()">
+        </div>
+        <div class="field">
+          <label>Number of Rates</label>
+          <input type="number" id="rate-count" value="4" min="1" max="20" step="1" oninput="onRateTmplChange()">
+        </div>
+        <div class="field">
+          <!-- spacer on desktop -->
+        </div>
+        <div class="field" style="grid-column: 1 / -1">
+          <label>Difficulty Name Template</label>
+          <input type="text" id="rate-tmpl" value="{diff} {rate}x" oninput="onRateTmplChange()">
+          <div class="chips">
+            <span class="chip" onclick="insRate('{diff}')">diff</span>
+            <span class="chip" onclick="insRate('{rate}')">rate</span>
+            <span class="chip" onclick="insRate('{bpm}')">bpm</span>
+          </div>
+          <div class="preview" id="rate-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:20px;">
+      <button class="btn-primary" id="cvt-btn" onclick="runAll()" style="margin-top:0; flex:1;">Convert &amp; Export</button>
+      <button class="btn-cancel" id="cancel-btn" onclick="cancelConversion()">✕ Cancel</button>
+    </div>
     <div class="prog" id="prog"><div class="prog-fill" id="pfill"></div></div>
   </div>
 
@@ -611,7 +750,7 @@ function matchBg(wanted, siblings) {
 }
 
 // ═══════════════════════════════════
-// SM Parser
+// SM / SSC Parser
 // ═══════════════════════════════════
 function parseSm(text) {
   const get = tag => { const m=text.match(new RegExp(`#${tag}:([^;]*);`,'si')); return m?m[1].trim():''; };
@@ -635,20 +774,57 @@ function parseSm(text) {
   const stops = pairs(get('STOPS'));
   if (!bpms.length) bpms.push({beat:0, value:120});
 
+  // ── Route: SSC uses #NOTEDATA: blocks; SM uses #NOTES: colon fields ──
+  const isSSC = /#NOTEDATA\s*:/i.test(text);
+  const charts = isSSC ? parseSSCCharts(text) : parseSMCharts(text);
+
+  return {meta, bpms, stops, charts};
+}
+
+// .sm chart format: #NOTES: type : desc : diff : meter : radar : <notedata> ;
+function parseSMCharts(text) {
   const charts = [];
-  const re = /#NOTES\s*:\s*([\s\S]*?)(?=\s*#[A-Z]|\s*$)/gi;
+  const re = /#NOTES\s*:\s*([\s\S]*?);/gi;
   let m;
   while ((m = re.exec(text)) !== null) {
     const p = m[1].split(':');
     if (p.length < 6) continue;
-    const stepType=p[0].trim(), desc=p[1].trim(), difficulty=p[2].trim();
-    const meter=parseInt(p[3])||1, noteData=p.slice(5).join(':');
-    const keyCount=stepTypeToKeys(stepType);
+    const stepType  = p[0].trim();
+    const desc      = p[1].trim();
+    const difficulty= p[2].trim();
+    const meter     = parseInt(p[3]) || 1;
+    const noteData  = p.slice(5).join(':');
+    const keyCount  = stepTypeToKeys(stepType);
     if (!keyCount) continue;
     charts.push({stepType, desc, difficulty, meter, noteData, keyCount});
   }
+  return charts;
+}
 
-  return {meta, bpms, stops, charts};
+// .ssc chart format: each chart lives in a #NOTEDATA:; block with its own tags
+function parseSSCCharts(text) {
+  const charts = [];
+  // Split on each #NOTEDATA: marker; content before the first one is discarded
+  const blocks = text.split(/#NOTEDATA\s*:\s*;/i);
+  blocks.shift();
+
+  for (const block of blocks) {
+    // Within a notedata block, grab individual tags (value ends at first ;)
+    const tag = t => {
+      const m = block.match(new RegExp(`#${t}\\s*:([^;]*);`, 'si'));
+      return m ? m[1].trim() : '';
+    };
+    // #NOTES: in SSC is just the raw note data, no sub-fields
+    const noteData  = tag('NOTES');
+    const stepType  = tag('STEPSTYPE');
+    const difficulty= tag('DIFFICULTY');
+    const meter     = parseInt(tag('METER')) || 1;
+    const desc      = tag('DESCRIPTION');
+    const keyCount  = stepTypeToKeys(stepType);
+    if (!keyCount || !noteData.trim()) continue;
+    charts.push({stepType, desc, difficulty, meter, noteData, keyCount});
+  }
+  return charts;
 }
 
 const STKEYS = {
@@ -709,15 +885,24 @@ function parseNotes(noteData, keyCount, bpms, stops, offsetSec) {
 // ═══════════════════════════════════
 // .osu generator
 // ═══════════════════════════════════
-function makeOsu(song, chart, audioName, bgName, opts) {
+function makeOsu(song, chart, audioName, bgName, opts, rate = 1.0, diffNameOverride = null) {
   const {meta, bpms, stops} = song.parsed;
   const objs = parseNotes(chart.noteData, chart.keyCount, bpms, stops, meta.offset);
   const b2ms  = makeBeatToMs([...bpms].sort((a,b)=>a.beat-b.beat), [], meta.offset);
-  const tps   = [...bpms].sort((a,b)=>a.beat-b.beat).map(bp=>`${b2ms(bp.beat)},${(60000/bp.value).toFixed(6)},4,1,0,100,1,0`);
+
+  // Apply rate: divide all ms timestamps by rate, divide beat length by rate (= multiply BPM)
+  const rMs = ms => Math.round(ms / rate);
+
+  const tps = [...bpms].sort((a,b)=>a.beat-b.beat).map(bp =>
+    `${rMs(b2ms(bp.beat))},${(60000 / bp.value / rate).toFixed(6)},4,1,0,100,1,0`
+  );
+
   const creator = meta.credit || opts.creator || 'Unknown';
+  const version = diffNameOverride ?? `${chart.difficulty} [${chart.stepType}]`;
+
   const hitLines = objs.map(o => o.type==='tap'
-    ? `${o.x},192,${o.ms},1,0,0:0:0:0:`
-    : `${o.x},192,${o.ms},128,0,${o.endMs}:0:0:0:0:`);
+    ? `${o.x},192,${rMs(o.ms)},1,0,0:0:0:0:`
+    : `${o.x},192,${rMs(o.ms)},128,0,${rMs(o.endMs)}:0:0:0:0:`);
   const events = ['//Background and Video events'];
   if (bgName) events.push(`0,0,"${bgName}",0,0`);
   events.push('//Break Periods');
@@ -727,7 +912,7 @@ function makeOsu(song, chart, audioName, bgName, opts) {
     '[General]',
     `AudioFilename: ${audioName||'audio.mp3'}`,
     'AudioLeadIn: 0',
-    `PreviewTime: ${Math.round(meta.sampleStart*1000)}`,
+    `PreviewTime: ${rMs(Math.round(meta.sampleStart*1000))}`,
     'Countdown: 0','SampleSet: Normal','StackLeniency: 0.7','Mode: 3',
     'LetterboxInBreaks: 0','SpecialStyle: 0','WidthForNoteField: 512','',
     '[Editor]','DistanceSpacing: 0.8','BeatDivisor: 8','GridSize: 4','TimelineZoom: 1','',
@@ -735,7 +920,7 @@ function makeOsu(song, chart, audioName, bgName, opts) {
     `Title:${meta.title}`,`TitleUnicode:${meta.titleTrans||meta.title}`,
     `Artist:${meta.artist}`,`ArtistUnicode:${meta.artistTrans||meta.artist}`,
     `Creator:${creator}`,
-    `Version:${chart.difficulty} [${chart.stepType}]`,
+    `Version:${version}`,
     `Source:${meta.subtitle}`,`Tags:stepmania converted ${meta.genre}`,
     'BeatmapID:0','BeatmapSetID:-1','',
     '[Difficulty]',
@@ -790,11 +975,17 @@ async function ingest(files) {
 
 function clearAll() {
   songs.length=0;
+  _cancelRequested = false;
   ['q-section','opt-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   document.getElementById('dz').classList.remove('filled');
+  document.getElementById('dz').style.pointerEvents = '';
+  document.getElementById('dz').style.opacity = '';
   document.getElementById('bulk').style.display='none';
   document.getElementById('logbox').style.display='none';
   document.getElementById('prog').style.display='none';
+  document.getElementById('cvt-btn').style.display = 'block';
+  document.getElementById('cancel-btn').style.display = 'none';
+  lockInputs(false);
 }
 
 // ═══════════════════════════════════
@@ -875,79 +1066,191 @@ function ins(token) {
 // ═══════════════════════════════════
 // Conversion
 // ═══════════════════════════════════
+let _cancelRequested = false;
+
+function cancelConversion() {
+  _cancelRequested = true;
+}
+
+// Collect every input/select/checkbox inside the options & rates sections
+function getAllInputs() {
+  return [
+    ...document.getElementById('opt-section').querySelectorAll('input, select, button, .chip'),
+  ];
+}
+
+function lockInputs(lock) {
+  for (const el of getAllInputs()) {
+    if (el.id === 'cvt-btn' || el.id === 'cancel-btn') continue; // handled separately
+    el.disabled = lock;
+    if (el.classList.contains('chip')) el.style.pointerEvents = lock ? 'none' : '';
+  }
+  // Also lock the clear button and drop zone during conversion
+  const clearBtn = document.querySelector('.q-footer .btn');
+  if (clearBtn) clearBtn.disabled = lock;
+  const dz = document.getElementById('dz');
+  dz.style.pointerEvents = lock ? 'none' : '';
+  dz.style.opacity       = lock ? '0.5'  : '';
+}
+
+// Snapshot all settings at click-time into a plain object
+function snapshotOpts() {
+  return {
+    creator:     document.getElementById('creator').value,
+    hp:          document.getElementById('hp').value,
+    od:          document.getElementById('od').value,
+    tmpl:        document.getElementById('tmpl').value || '{artist} - {title}',
+    rateConfig:  getRateConfig(),   // null if disabled — captured right now
+  };
+}
+
 async function runAll() {
   if (!songs.length) return;
-  const btn=document.getElementById('cvt-btn');
-  btn.disabled=true;
 
-  const prog=document.getElementById('prog'), pfill=document.getElementById('pfill');
-  prog.style.display='block'; pfill.style.width='0%';
+  // ── Snapshot settings immediately ──
+  const opts = snapshotOpts();
 
-  const logbox=document.getElementById('logbox');
-  logbox.style.display='block'; logbox.innerHTML='';
-  document.getElementById('bulk').style.display='none';
+  // Re-apply the snapshotted naming template so queue names match output
+  const fb = opts.creator;
+  for (const s of songs) {
+    s.outputName = san(applyTmpl(opts.tmpl, s.parsed.meta, s.parsed.bpms, fb));
+  }
 
-  const opts={creator:document.getElementById('creator').value,hp:document.getElementById('hp').value,od:document.getElementById('od').value};
+  _cancelRequested = false;
 
-  for (const s of songs) { if(s.status!=='done'){s.status='pending';s.blob=null;s.error=null;} }
+  const cvtBtn    = document.getElementById('cvt-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+  cvtBtn.style.display    = 'none';
+  cancelBtn.style.display = 'block';
+  lockInputs(true);
+
+  const prog = document.getElementById('prog'), pfill = document.getElementById('pfill');
+  prog.style.display = 'block'; pfill.style.width = '0%';
+
+  const logbox = document.getElementById('logbox');
+  logbox.style.display = 'block'; logbox.innerHTML = '';
+  document.getElementById('bulk').style.display = 'none';
+
+  for (const s of songs) { if (s.status !== 'done') { s.status = 'pending'; s.blob = null; s.error = null; } }
   renderQueue();
 
-  const pending=songs.filter(s=>s.status==='pending');
-  const allBlobs=[];
+  const pending  = songs.filter(s => s.status === 'pending');
+  const allBlobs = [];
 
-  for (let i=0;i<pending.length;i++) {
-    const s=pending[i];
-    s.status='processing'; updateRow(s);
+  for (let i = 0; i < pending.length; i++) {
+    if (_cancelRequested) {
+      log('Cancelled.', 'l-dim');
+      // Mark remaining pending songs back to pending (not error)
+      for (let j = i; j < pending.length; j++) {
+        pending[j].status = 'pending';
+        updateRow(pending[j]);
+      }
+      break;
+    }
+
+    const s = pending[i];
+    s.status = 'processing'; updateRow(s);
     log(`Converting: ${s.parsed.meta.artist} — ${s.parsed.meta.title}`, 'l-info');
     try {
-      s.blob=await convertSong(s,opts);
-      s.status='done';
-      allBlobs.push({name:s.outputName+'.osz',blob:s.blob});
-      log(`  ✓ ${s.parsed.charts.length} chart${s.parsed.charts.length!==1?'s':''} → ${s.outputName}.osz`, 'l-ok');
+      s.blob = await convertSong(s, opts);
+      if (_cancelRequested) {
+        // Song finished but cancel was hit mid-audio-encode; still keep it
+        s.status = 'done';
+      } else {
+        s.status = 'done';
+      }
+      allBlobs.push({ name: s.outputName + '.osz', blob: s.blob });
+      log(`  ✓ ${s.parsed.charts.length} chart${s.parsed.charts.length !== 1 ? 's' : ''} → ${s.outputName}.osz`, 'l-ok');
     } catch(e) {
-      s.status='error'; s.error=e.message;
-      log(`  ✗ ${e.message}`, 'l-err');
+      if (e.message === 'CANCELLED') {
+        s.status = 'pending';
+        log('  Cancelled mid-song.', 'l-dim');
+      } else {
+        s.status = 'error'; s.error = e.message;
+        log(`  ✗ ${e.message}`, 'l-err');
+      }
+      updateRow(s);
+      break;
     }
     updateRow(s);
-    pfill.style.width=`${Math.round((i+1)/pending.length*100)}%`;
+    pfill.style.width = `${Math.round((i + 1) / pending.length * 100)}%`;
   }
 
-  btn.disabled=false;
+  // ── Re-enable UI ──
+  cvtBtn.style.display    = 'block';
+  cancelBtn.style.display = 'none';
+  lockInputs(false);
 
-  const done=songs.filter(s=>s.status==='done');
-  if (done.length>1) {
-    document.getElementById('bulk-msg').textContent=`${done.length}/${songs.length} complete.`;
-    document.getElementById('bulk-sub').textContent=allBlobs.map(b=>b.name).join('  ·  ');
-    const bulkEl=document.getElementById('bulk');
-    bulkEl.style.display='flex';
-    document.getElementById('bulk-btn').onclick=async()=>{
-      const zip=new JSZip();
-      for (const {name,blob} of allBlobs) zip.file(name,blob);
-      const zblob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-      dlBlob(zblob,'beatmaps.zip');
+  const done = songs.filter(s => s.status === 'done');
+  if (done.length > 1) {
+    document.getElementById('bulk-msg').textContent = `${done.length}/${songs.length} complete.`;
+    document.getElementById('bulk-sub').textContent = allBlobs.map(b => b.name).join('  ·  ');
+    const bulkEl = document.getElementById('bulk');
+    bulkEl.style.display = 'flex';
+    document.getElementById('bulk-btn').onclick = async () => {
+      const zip = new JSZip();
+      for (const { name, blob } of allBlobs) zip.file(name, blob);
+      const zblob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      dlBlob(zblob, 'beatmaps.zip');
     };
   }
-  log(`Done. ${done.length} ok, ${songs.length-done.length} failed.`, 'l-dim');
+  if (!_cancelRequested)
+    log(`Done. ${done.length} ok, ${songs.filter(s=>s.status==='error').length} failed.`, 'l-dim');
 }
 
 async function convertSong(song, opts) {
   const {meta,bpms,stops,charts}=song.parsed;
   if (!charts.length) throw new Error('No parseable charts in file');
+
+  // Use the rateConfig captured at click-time, not live DOM values
+  const rateConfig = opts.rateConfig;
+  const useRates   = rateConfig && charts.length === 1 && song.audioFile;
+
   const zip=new JSZip(), zf=zip.folder(song.outputName);
 
-  let audioName=null;
-  if (song.audioFile) { audioName=song.audioFile.name; zf.file(audioName,await readBuf(song.audioFile)); }
-  else if (meta.music) audioName=meta.music;
-  else audioName='audio.mp3';
+  if (useRates) {
+    const chart = charts[0];
 
-  let bgName=null;
-  if (song.bgFile) { bgName=song.bgFile.name; zf.file(bgName,await readBuf(song.bgFile)); }
-  else if (meta.background) bgName=meta.background;
+    let bgName = null;
+    if (song.bgFile) { bgName = song.bgFile.name; zf.file(bgName, await readBuf(song.bgFile)); }
+    else if (meta.background) bgName = meta.background;
 
-  for (const chart of charts) {
-    const osu=makeOsu(song,chart,audioName,bgName,opts);
-    const ver=san(`${meta.artist} - ${meta.title} [${chart.difficulty} ${chart.stepType}]`);
-    zf.file(`${ver}.osu`,osu);
+    for (const rate of rateConfig.rates) {
+      if (_cancelRequested) throw new Error('CANCELLED');
+
+      const rateStr   = formatRate(rate);
+      const isBase    = Math.abs(rate - 1.0) < 0.001;
+      const audioName = isBase ? song.audioFile.name : `audio_${rateStr}x.wav`;
+
+      if (isBase) {
+        zf.file(audioName, await readBuf(song.audioFile));
+      } else {
+        log(`  Encoding audio at ${rateStr}x…`, 'l-dim');
+        const ratedBlob = await rateAudio(song.audioFile, rate);
+        zf.file(audioName, await ratedBlob.arrayBuffer());
+      }
+
+      const diffName = applyRateDiffName(rateConfig.tmpl, chart.difficulty, rate, bpms);
+      const osu  = makeOsu(song, chart, audioName, bgName, opts, rate, diffName);
+      const ver  = san(`${meta.artist} - ${meta.title} [${diffName}]`);
+      zf.file(`${ver}.osu`, osu);
+    }
+  } else {
+    let audioName=null;
+    if (song.audioFile) { audioName=song.audioFile.name; zf.file(audioName,await readBuf(song.audioFile)); }
+    else if (meta.music) audioName=meta.music;
+    else audioName='audio.mp3';
+
+    let bgName=null;
+    if (song.bgFile) { bgName=song.bgFile.name; zf.file(bgName,await readBuf(song.bgFile)); }
+    else if (meta.background) bgName=meta.background;
+
+    for (const chart of charts) {
+      if (_cancelRequested) throw new Error('CANCELLED');
+      const osu=makeOsu(song,chart,audioName,bgName,opts);
+      const ver=san(`${meta.artist} - ${meta.title} [${chart.difficulty} ${chart.stepType}]`);
+      zf.file(`${ver}.osu`,osu);
+    }
   }
 
   return zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
@@ -969,6 +1272,136 @@ function log(msg,cls='l-info') {
   const box=document.getElementById('logbox');
   const s=document.createElement('span'); s.className=cls; s.textContent=msg;
   box.appendChild(s); box.scrollTop=box.scrollHeight;
+}
+
+// ═══════════════════════════════════
+// Rates — config & naming
+// ═══════════════════════════════════
+function getRateConfig() {
+  if (!document.getElementById('rates-enabled').checked) return null;
+  const start = parseFloat(document.getElementById('rate-start').value)  || 1.0;
+  const step  = parseFloat(document.getElementById('rate-step').value)   || 0.1;
+  const count = parseInt  (document.getElementById('rate-count').value)  || 4;
+  const tmpl  = document.getElementById('rate-tmpl').value || '{diff} {rate}x';
+  const rates = [];
+  for (let i = 0; i < count; i++)
+    rates.push(Math.round((start + step * i) * 1000) / 1000);
+  return { rates, tmpl };
+}
+
+function formatRate(rate) {
+  // 1.0 → "1.0", 1.1 → "1.1", 1.15 → "1.15"
+  return parseFloat(rate.toFixed(3)).toString();
+}
+
+function applyRateDiffName(tmpl, diffName, rate, bpms) {
+  const vals   = bpms.map(b => b.value);
+  const mn     = Math.round(Math.min(...vals) * rate);
+  const mx     = Math.round(Math.max(...vals) * rate);
+  const bpmStr = mn === mx ? `${mn}` : `${mn}–${mx}`;
+  return tmpl
+    .replace(/\{diff\}/gi,  diffName)
+    .replace(/\{rate\}/gi,  formatRate(rate))
+    .replace(/\{bpm\}/gi,   bpmStr);
+}
+
+function onRatesToggle() {
+  const enabled = document.getElementById('rates-enabled').checked;
+  document.getElementById('rates-opts').classList.toggle('hidden', !enabled);
+  onRateTmplChange();
+}
+
+function onRateTmplChange() {
+  const prev = document.getElementById('rate-preview');
+  if (!document.getElementById('rates-enabled').checked || !songs.length) { prev.textContent = ''; return; }
+  const tmpl  = document.getElementById('rate-tmpl').value || '{diff} {rate}x';
+  const start = parseFloat(document.getElementById('rate-start').value)  || 1.0;
+  const step  = parseFloat(document.getElementById('rate-step').value)   || 0.1;
+  const count = parseInt  (document.getElementById('rate-count').value)  || 4;
+  const { charts, bpms } = songs[0].parsed;
+  if (!charts.length) { prev.textContent = ''; return; }
+  const examples = [];
+  for (let i = 0; i < Math.min(count, 4); i++) {
+    const rate = Math.round((start + step * i) * 1000) / 1000;
+    examples.push(applyRateDiffName(tmpl, charts[0].difficulty, rate, bpms));
+  }
+  prev.textContent = '→ ' + examples.join(' · ') + (count > 4 ? ' · …' : '');
+}
+
+function insRate(token) {
+  const inp = document.getElementById('rate-tmpl');
+  const s = inp.selectionStart ?? inp.value.length;
+  const e = inp.selectionEnd   ?? inp.value.length;
+  inp.value = inp.value.slice(0, s) + token + inp.value.slice(e);
+  inp.focus();
+  inp.setSelectionRange(s + token.length, s + token.length);
+  onRateTmplChange();
+}
+
+// ═══════════════════════════════════
+// Rates — audio processing (Web Audio API → WAV)
+// ═══════════════════════════════════
+async function rateAudio(audioFile, rate) {
+  const arrayBuffer = await readBuf(audioFile);
+
+  // Decode using a temporary context
+  const tmpCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let decoded;
+  try {
+    decoded = await tmpCtx.decodeAudioData(arrayBuffer);
+  } finally {
+    tmpCtx.close();
+  }
+
+  // Render at playbackRate = rate into an OfflineAudioContext
+  const newLength = Math.ceil(decoded.length / rate);
+  const offCtx = new OfflineAudioContext(
+    decoded.numberOfChannels,
+    newLength,
+    decoded.sampleRate
+  );
+  const src = offCtx.createBufferSource();
+  src.buffer = decoded;
+  src.playbackRate.value = rate;
+  src.connect(offCtx.destination);
+  src.start(0);
+
+  const rendered = await offCtx.startRendering();
+  return encodeWAV(rendered);
+}
+
+function encodeWAV(buffer) {
+  const numCh = buffer.numberOfChannels;
+  const sr    = buffer.sampleRate;
+  const len   = buffer.length;
+  const out   = new ArrayBuffer(44 + len * numCh * 2);
+  const view  = new DataView(out);
+  const wStr  = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+
+  wStr(0,  'RIFF');
+  view.setUint32(4,  36 + len * numCh * 2, true);
+  wStr(8,  'WAVE');
+  wStr(12, 'fmt ');
+  view.setUint32(16, 16,    true);
+  view.setUint16(20, 1,     true); // PCM
+  view.setUint16(22, numCh, true);
+  view.setUint32(24, sr,    true);
+  view.setUint32(28, sr * numCh * 2, true);
+  view.setUint16(32, numCh * 2, true);
+  view.setUint16(34, 16,    true);
+  wStr(36, 'data');
+  view.setUint32(40, len * numCh * 2, true);
+
+  let off = 44;
+  for (let i = 0; i < len; i++) {
+    for (let ch = 0; ch < numCh; ch++) {
+      const s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+      view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      off += 2;
+    }
+  }
+
+  return new Blob([out], { type: 'audio/wav' });
 }
 </script>
 </body>
