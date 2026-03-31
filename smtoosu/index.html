@@ -6,9 +6,20 @@
 <title>sm/ssc → osz</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body class="converter-page">
+<div class="site-shell markdown-page">
+  <nav class="site-nav">
+    <a class="site-logo" href="../index.html" aria-label="Home">
+      <img src="../avatar.jpg" alt="Site logo">
+    </a>
+    <a href="../index.html">Home</a>
+    <a href="../projects.html" class="active">Projects</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+
 <div class="wrap">
 
   <a href="../projects.html" class="back-link">Projects</a>
@@ -152,6 +163,7 @@
   <div class="logbox" id="logbox"></div>
 
 </div><!-- /wrap -->
+</div><!-- /site-shell -->
 
 <script>
 // ═══════════════════════════════════
@@ -923,5 +935,6 @@ function encodeWAV(buffer) {
   return new Blob([out], { type: 'audio/wav' });
 }
 </script>
+<script src="../scroll-progress.js"></script>
 </body>
 </html>
