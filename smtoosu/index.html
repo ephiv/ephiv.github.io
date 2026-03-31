@@ -363,7 +363,7 @@ function makeBeatToMs(bpms, stops, offsetSec) {
   evts.sort((a,b)=>a.beat-b.beat||(a.type==='bpm'?-1:1));
 
   return function(target) {
-    let ms = offsetSec*1000, cur=0, bpm=bpms[0].value;
+    let ms = -(offsetSec*1000), cur=0, bpm=bpms[0].value;
     for (const ev of evts) {
       if (ev.beat > target) break;
       ms  += (ev.beat-cur)*(60000/bpm); cur=ev.beat;
