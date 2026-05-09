@@ -12,8 +12,8 @@
 <body class="converter-page">
 <div class="site-shell markdown-page">
   <nav class="site-nav">
-    <a class="site-logo" href="../index.html" aria-label="Home">
-      <img src="../avatar.jpg" alt="Site logo">
+    <a class="site-logo" href="../index.html" aria-label="home">
+      <img src="../avatar.jpg" alt="site logo">
     </a>
     <a href="../index.html">home</a>
     <a href="../projects.html" class="active">projects</a>
@@ -38,7 +38,7 @@
          ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
       <span class="di">↓</span>
       <div class="dp">drop your files here</div>
-      <div class="dh">accepts .sm / .ssc · audio · background image — singles or entire song packs</div>
+      <div class="dh">accepts .sm / .ssc · .mp3/.ogg/.wav/.flac/.aac/.m4a · background image — singles or entire song packs</div>
       <div class="drop-btns">
         <button class="btn" onclick="document.getElementById('fi').click()">select files</button>
         <button class="btn" onclick="document.getElementById('fld').click()">select folder</button>
@@ -69,12 +69,12 @@
         <label>output naming</label>
         <input type="text" id="tmpl" value="{artist} - {title}" oninput="onTmplChange()">
         <div class="chips">
-          <span class="chip" onclick="ins('{title}')">title</span>
-          <span class="chip" onclick="ins('{artist}')">artist</span>
-          <span class="chip" onclick="ins('{creator}')">creator</span>
-          <span class="chip" onclick="ins('{subtitle}')">subtitle</span>
-          <span class="chip" onclick="ins('{genre}')">genre</span>
-          <span class="chip" onclick="ins('{bpm}')">bpm</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{title}'))" onclick="ins('{title}')">title</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{artist}'))" onclick="ins('{artist}')">artist</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{creator}'))" onclick="ins('{creator}')">creator</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{subtitle}'))" onclick="ins('{subtitle}')">subtitle</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{genre}'))" onclick="ins('{genre}')">genre</span>
+          <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>ins('{bpm}'))" onclick="ins('{bpm}')">bpm</span>
         </div>
         <div class="preview" id="preview"></div>
       </div>
@@ -99,6 +99,36 @@
           <option value="8" selected>8 — hard</option>
           <option value="9">9 — expert</option>
         </select>
+      </div>
+      <div class="field">
+        <label>title/artist mode</label>
+        <select id="meta-mode" onchange="onMetaOptsChange()">
+          <option value="romanized" selected>romanized + unicode fallback</option>
+          <option value="translit">prefer translit fields</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>source/game</label>
+        <input type="text" id="source" placeholder="override source tag" oninput="onMetaOptsChange()">
+      </div>
+      <div class="field">
+        <label>extra tags</label>
+        <input type="text" id="tags" placeholder="space-separated tags" oninput="onMetaOptsChange()">
+      </div>
+      <div class="field">
+        <label>step type filter</label>
+        <select id="step-filter" onchange="renderQueue()">
+          <option value="all" selected>all</option>
+          <option value="single">single only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>min meter</label>
+        <input type="number" id="min-meter" value="1" min="1" max="40" step="1" oninput="renderQueue()">
+      </div>
+      <div class="field field-full">
+        <label>metadata preview</label>
+        <div class="preview" id="meta-preview"></div>
       </div>
     </div>
 
@@ -135,9 +165,9 @@
           <label>difficulty naming</label>
           <input type="text" id="rate-tmpl" value="{diff} {rate}x" oninput="onRateTmplChange()">
           <div class="chips">
-            <span class="chip" onclick="insRate('{diff}')">diff</span>
-            <span class="chip" onclick="insRate('{rate}')">rate</span>
-            <span class="chip" onclick="insRate('{bpm}')">bpm</span>
+            <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>insRate('{diff}'))" onclick="insRate('{diff}')">diff</span>
+            <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>insRate('{rate}'))" onclick="insRate('{rate}')">rate</span>
+            <span class="chip" role="button" tabindex="0" onkeydown="chipKey(event, ()=>insRate('{bpm}'))" onclick="insRate('{bpm}')">bpm</span>
           </div>
           <div class="preview" id="rate-preview"></div>
         </div>
@@ -162,6 +192,7 @@
 
   <!-- Log -->
   <div class="logbox" id="logbox"></div>
+  <div class="logbox" id="validation-box"></div>
 
 </div><!-- /wrap -->
 </div><!-- /site-shell -->
@@ -226,7 +257,7 @@ async function groupFiles(files) {
   const audFiles = files.filter(f => AUDIO.has(ext(f.name)));
   const imgFiles = files.filter(f => IMAGE.has(ext(f.name)));
 
-  if (!smFiles.length) { alert('No .sm or .ssc files found.'); return []; }
+  if (!smFiles.length) { alert('no .sm or .ssc files found.'); return []; }
 
   const groups = [];
   for (const smf of smFiles) {
@@ -239,7 +270,7 @@ async function groupFiles(files) {
 
     let parsed;
     try { parsed = parseSm(text); }
-    catch(e) { log(`✗ Parse error in ${smf.name}: ${e.message}`, 'l-err'); continue; }
+    catch(e) { log(`✗ parse error in ${smf.name}: ${e.message}`, 'l-err'); continue; }
 
     const sibAud = sib(audFiles);
     const sibImg = sib(imgFiles);
@@ -264,7 +295,7 @@ function matchAudio(wanted, siblings) {
     const exact = siblings.find(f => f.name.toLowerCase() === wl);
     if (exact) return exact;
   }
-  const priority = ['.mp3','.ogg','.wav','.flac'];
+  const priority = ['.ogg','.mp3','.wav','.flac','.m4a','.aac'];
   for (const p of priority) { const f=siblings.find(f=>ext(f.name)===p); if(f) return f; }
   return siblings[0];
 }
@@ -288,16 +319,17 @@ function parseSm(text) {
   const get = tag => { const m=text.match(new RegExp(`#${tag}:([^;]*);`,'si')); return m?m[1].trim():''; };
   const pairs = str => str.split(',').map(s=>{const p=s.trim().split('=');return{beat:+p[0],value:+p[1]};}).filter(p=>!isNaN(p.beat)&&!isNaN(p.value)&&p.value>0);
 
+  const bgChanges = get('BGCHANGES');
   const meta = {
-    title:       get('TITLE')       || 'Unknown Title',
+    title:       get('TITLE')       || 'unknown title',
     subtitle:    get('SUBTITLE')    || '',
-    artist:      get('ARTIST')      || 'Unknown Artist',
+    artist:      get('ARTIST')      || 'unknown artist',
     titleTrans:  get('TITLETRANSLIT'),
     artistTrans: get('ARTISTTRANSLIT'),
     genre:       get('GENRE')       || '',
     credit:      get('CREDIT')      || '',
     music:       get('MUSIC')       || '',
-    background:  get('BACKGROUND')  || get('BGCHANGES') || '',
+    background:  get('BACKGROUND')  || parseBgFromChanges(bgChanges) || '',
     offset:      parseFloat(get('OFFSET'))      || 0,
     sampleStart: parseFloat(get('SAMPLESTART')) || 0,
   };
@@ -311,6 +343,15 @@ function parseSm(text) {
   const charts = isSSC ? parseSSCCharts(text) : parseSMCharts(text);
 
   return {meta, bpms, stops, charts};
+}
+
+function parseBgFromChanges(bgChanges) {
+  if (!bgChanges) return '';
+  const firstSeg = bgChanges.split(',')[0] || '';
+  const fields = firstSeg.split('=').map(s => s.trim()).filter(Boolean);
+  if (fields.length < 2) return '';
+  const raw = fields[1].replace(/^['"]|['"]$/g, '');
+  return raw || '';
 }
 
 // .sm chart format: #NOTES: type : desc : diff : meter : radar : <notedata> ;
@@ -336,17 +377,19 @@ function parseSMCharts(text) {
 // .ssc chart format: each chart lives in a #NOTEDATA:; block with its own tags
 function parseSSCCharts(text) {
   const charts = [];
-  // Split on each #NOTEDATA: marker; content before the first one is discarded
-  const blocks = text.split(/#NOTEDATA\s*:\s*;/i);
-  blocks.shift();
+  const starts = [];
+  const marker = /#NOTEDATA\s*:/gi;
+  let m;
+  while ((m = marker.exec(text)) !== null) starts.push(m.index);
+  if (!starts.length) return charts;
+  starts.push(text.length);
 
-  for (const block of blocks) {
-    // Within a notedata block, grab individual tags (value ends at first ;)
+  for (let i = 0; i < starts.length - 1; i++) {
+    const block = text.slice(starts[i], starts[i + 1]);
     const tag = t => {
-      const m = block.match(new RegExp(`#${t}\\s*:([^;]*);`, 'si'));
+      const m = block.match(new RegExp(`#${t}\\s*:([\\s\\S]*?);`, 'i'));
       return m ? m[1].trim() : '';
     };
-    // #NOTES: in SSC is just the raw note data, no sub-fields
     const noteData  = tag('NOTES');
     const stepType  = tag('STEPSTYPE');
     const difficulty= tag('DIFFICULTY');
@@ -395,7 +438,7 @@ function parseNotes(noteData, keyCount, bpms, stops, offsetSec) {
   const measures = noteData.replace(/\/\/[^\n]*/g,'').trim().split(',');
   let mi=0;
   for (const meas of measures) {
-    const rows = meas.trim().split('\n').map(r=>r.trim()).filter(r=>r.length&&/^[0-9MKLFfm]+$/i.test(r));
+    const rows = meas.trim().split('\n').map(r=>r.trim()).filter(r => r.length && /^[A-Za-z0-9]+$/.test(r));
     const n=rows.length;
     if (!n) {mi++;continue;}
     for (let r=0;r<n;r++) {
@@ -429,7 +472,12 @@ function makeOsu(song, chart, audioName, bgName, opts, rate = 1.0, diffNameOverr
     `${rMs(b2ms(bp.beat))},${(60000 / bp.value / rate).toFixed(6)},4,1,0,100,1,0`
   );
 
-  const creator = meta.credit || opts.creator || 'Unknown';
+  const creator = meta.credit || opts.creator || 'unknown';
+  const preferTranslit = opts.metaMode === 'translit';
+  const title = preferTranslit ? (meta.titleTrans || meta.title) : (meta.title || meta.titleTrans || 'unknown title');
+  const artist = preferTranslit ? (meta.artistTrans || meta.artist) : (meta.artist || meta.artistTrans || 'unknown artist');
+  const source = opts.source || meta.subtitle || '';
+  const tags = (`stepmania converted ${meta.genre || ''} ${opts.tags || ''}`).trim().replace(/\s+/g, ' ');
   const version = diffNameOverride ?? `${chart.difficulty} [${chart.stepType}]`;
 
   const hitLines = objs.map(o => o.type==='tap'
@@ -449,11 +497,11 @@ function makeOsu(song, chart, audioName, bgName, opts, rate = 1.0, diffNameOverr
     'LetterboxInBreaks: 0','SpecialStyle: 0','WidthForNoteField: 512','',
     '[Editor]','DistanceSpacing: 0.8','BeatDivisor: 8','GridSize: 4','TimelineZoom: 1','',
     '[Metadata]',
-    `Title:${meta.title}`,`TitleUnicode:${meta.titleTrans||meta.title}`,
-    `Artist:${meta.artist}`,`ArtistUnicode:${meta.artistTrans||meta.artist}`,
+    `Title:${title}`,`TitleUnicode:${meta.titleTrans||meta.title}`,
+    `Artist:${artist}`,`ArtistUnicode:${meta.artistTrans||meta.artist}`,
     `Creator:${creator}`,
     `Version:${version}`,
-    `Source:${meta.subtitle}`,`Tags:stepmania converted ${meta.genre}`,
+    `Source:${source}`,`Tags:${tags}`,
     'BeatmapID:0','BeatmapSetID:-1','',
     '[Difficulty]',
     `HPDrainRate:${opts.hp}`,`CircleSize:${chart.keyCount}`,
@@ -471,10 +519,10 @@ function applyTmpl(tmpl, meta, bpms, fallback) {
   const vals=bpms.map(b=>b.value);
   const mn=Math.round(Math.min(...vals)), mx=Math.round(Math.max(...vals));
   const bpmStr=mn===mx?`${mn}`:`${mn}-${mx}`;
-  const creator=meta.credit||fallback||'Unknown';
+  const creator=meta.credit||fallback||'unknown';
   return tmpl
-    .replace(/\{title\}/gi,    meta.title   ||'Unknown Title')
-    .replace(/\{artist\}/gi,   meta.artist  ||'Unknown Artist')
+    .replace(/\{title\}/gi,    meta.title   ||'unknown title')
+    .replace(/\{artist\}/gi,   meta.artist  ||'unknown artist')
     .replace(/\{creator\}/gi,  creator)
     .replace(/\{subtitle\}/gi, meta.subtitle||'')
     .replace(/\{genre\}/gi,    meta.genre   ||'')
@@ -503,6 +551,8 @@ async function ingest(files) {
   document.getElementById('opt-section').classList.remove('hidden');
   renderQueue();
   updatePreview();
+  renderValidation();
+  onMetaOptsChange();
 }
 
 function clearAll() {
@@ -515,6 +565,7 @@ function clearAll() {
   document.getElementById('bulk').style.display='none';
   document.getElementById('logbox').style.display='none';
   document.getElementById('prog').style.display='none';
+  document.getElementById('validation-box').style.display='none';
   document.getElementById('cvt-btn').style.display = 'block';
   document.getElementById('cancel-btn').style.display = 'none';
   lockInputs(false);
@@ -526,16 +577,20 @@ function clearAll() {
 function renderQueue() {
   const tmpl=document.getElementById('tmpl').value||'{artist} - {title}';
   const fb=document.getElementById('creator').value;
+  const stepFilter = document.getElementById('step-filter')?.value || 'all';
+  const minMeter = parseInt(document.getElementById('min-meter')?.value || '1') || 1;
   const cont=document.getElementById('q-rows');
   cont.innerHTML='';
 
   for (const s of songs) {
     const {meta,bpms,charts}=s.parsed;
+    const filteredCharts = charts.filter(c => (stepFilter !== 'single' || /single/i.test(c.stepType)) && c.meter >= minMeter);
+    s.filteredCharts = filteredCharts;
     s.outputName=san(applyTmpl(tmpl,meta,bpms,fb));
     const vals=bpms.map(b=>b.value);
     const mn=Math.round(Math.min(...vals)),mx=Math.round(Math.max(...vals));
     const bpmStr=mn===mx?`${mn}`:(`${mn}–${mx}`);
-    const keys=[...new Set(charts.map(c=>c.keyCount+'K'))].join(', ');
+    const keys=[...new Set(filteredCharts.map(c=>c.keyCount+'K'))].join(', ') || 'none';
     const dotCls={pending:'',processing:'proc',done:'ok',error:'err'}[s.status]||'';
     const creator=meta.credit||fb||'';
 
@@ -555,9 +610,14 @@ function renderQueue() {
         <div class="q-title">${esc(meta.title)}</div>
         <div class="q-sub">${esc(meta.artist)}${creator?' · '+esc(creator):''}</div>
       </div>
-      <div class="q-meta">${esc(keys)} · ${charts.length} diff${charts.length!==1?'s':''} · ${bpmStr} BPM</div>
+      <div class="q-meta">${esc(keys)} · ${filteredCharts.length} diff${filteredCharts.length!==1?'s':''} · ${bpmStr} BPM</div>
       <div class="q-act" id="act-${s.id}">${actionHtml}</div>`;
     cont.appendChild(row);
+    const bgRow = document.createElement('div');
+    bgRow.className = 'q-sub';
+    bgRow.style.padding = '0 16px 10px 44px';
+    bgRow.innerHTML = `background override: <input aria-label="background override for ${esc(meta.title)}" placeholder="filename (or blank)" value="${esc(s.bgOverride || '')}" oninput="songs.find(x=>x.id===${s.id}).bgOverride=this.value">`;
+    cont.appendChild(bgRow);
   }
 
   document.getElementById('q-count').textContent=`${songs.length} song${songs.length!==1?'s':''}`;
@@ -585,7 +645,34 @@ function updatePreview() {
   prev.textContent='→ '+san(applyTmpl(tmpl,meta,bpms,fb))+'.osz';
 }
 
-function onTmplChange() { updatePreview(); renderQueue(); }
+function onTmplChange() { updatePreview(); renderQueue(); onMetaOptsChange(); renderValidation(); }
+
+function onMetaOptsChange() {
+  const prev = document.getElementById('meta-preview');
+  if (!songs.length) { prev.textContent = ''; return; }
+  const s = songs[0];
+  const meta = s.parsed.meta;
+  const mode = document.getElementById('meta-mode').value;
+  const title = mode === 'translit' ? (meta.titleTrans || meta.title) : (meta.title || meta.titleTrans);
+  const artist = mode === 'translit' ? (meta.artistTrans || meta.artist) : (meta.artist || meta.artistTrans);
+  prev.textContent = `Title:${title} · Artist:${artist} · Source:${document.getElementById('source').value || meta.subtitle || ''} · Tags:${document.getElementById('tags').value || '(default)'}`;
+}
+
+function renderValidation() {
+  const box = document.getElementById('validation-box');
+  if (!songs.length) { box.style.display = 'none'; return; }
+  const lines = [];
+  for (const s of songs) {
+    const issues = [];
+    if (!s.audioFile) issues.push('missing audio');
+    if (!s.parsed.charts.length) issues.push('no parseable charts');
+    if (!s.bgFile && s.parsed.meta.background) issues.push('guessed background (check override)');
+    if (!s.filteredCharts || !s.filteredCharts.length) issues.push('filtered out by chart controls');
+    lines.push(`${s.parsed.meta.artist} - ${s.parsed.meta.title}: ${issues.length ? issues.join(', ') : 'ok'}`);
+  }
+  box.style.display = 'block';
+  box.innerHTML = lines.map(l => `<span class="l-info">${esc(l)}</span>`).join('');
+}
 
 function ins(token) {
   const inp=document.getElementById('tmpl');
@@ -593,6 +680,13 @@ function ins(token) {
   inp.value=inp.value.slice(0,s)+token+inp.value.slice(e);
   inp.focus(); inp.setSelectionRange(s+token.length,s+token.length);
   onTmplChange();
+}
+
+function chipKey(e, fn) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    fn();
+  }
 }
 
 // ═══════════════════════════════════
@@ -632,6 +726,9 @@ function snapshotOpts() {
     hp:          document.getElementById('hp').value,
     od:          document.getElementById('od').value,
     tmpl:        document.getElementById('tmpl').value || '{artist} - {title}',
+    metaMode:    document.getElementById('meta-mode').value,
+    source:      document.getElementById('source').value,
+    tags:        document.getElementById('tags').value,
     rateConfig:  getRateConfig(),   // null if disabled — captured right now
   };
 }
@@ -668,10 +765,19 @@ async function runAll() {
 
   const pending  = songs.filter(s => s.status === 'pending');
   const allBlobs = [];
+  const usedBulkNames = new Set();
+  const estimatedRateEncodes = pending.reduce((n, s) => {
+    const rc = opts.rateConfig;
+    if (!rc || !s.audioFile || s.parsed.charts.length !== 1) return n;
+    return n + rc.rates.filter(r => Math.abs(r - 1.0) >= 0.001).length;
+  }, 0);
+  if (pending.length >= 30 || estimatedRateEncodes >= 20) {
+    log('large batch detected. conversion may use significant memory; smaller batches are safer.', 'l-dim');
+  }
 
   for (let i = 0; i < pending.length; i++) {
     if (_cancelRequested) {
-      log('Cancelled.', 'l-dim');
+      log('cancelled.', 'l-dim');
       // Mark remaining pending songs back to pending (not error)
       for (let j = i; j < pending.length; j++) {
         pending[j].status = 'pending';
@@ -682,7 +788,7 @@ async function runAll() {
 
     const s = pending[i];
     s.status = 'processing'; updateRow(s);
-    log(`Converting: ${s.parsed.meta.artist} — ${s.parsed.meta.title}`, 'l-info');
+    log(`converting: ${s.parsed.meta.artist} — ${s.parsed.meta.title}`, 'l-info');
     try {
       s.blob = await convertSong(s, opts);
       if (_cancelRequested) {
@@ -691,12 +797,13 @@ async function runAll() {
       } else {
         s.status = 'done';
       }
-      allBlobs.push({ name: s.outputName + '.osz', blob: s.blob });
+      const bulkName = uniqueName(`${s.outputName}.osz`, usedBulkNames);
+      allBlobs.push({ name: bulkName, blob: s.blob });
       log(`  ✓ ${s.parsed.charts.length} chart${s.parsed.charts.length !== 1 ? 's' : ''} → ${s.outputName}.osz`, 'l-ok');
     } catch(e) {
       if (e.message === 'CANCELLED') {
         s.status = 'pending';
-        log('  Cancelled mid-song.', 'l-dim');
+        log('  cancelled mid-song.', 'l-dim');
       } else {
         s.status = 'error'; s.error = e.message;
         log(`  ✗ ${e.message}`, 'l-err');
@@ -727,24 +834,42 @@ async function runAll() {
     };
   }
   if (!_cancelRequested)
-    log(`Done. ${done.length} ok, ${songs.filter(s=>s.status==='error').length} failed.`, 'l-dim');
+    log(`done. ${done.length} ok, ${songs.filter(s=>s.status==='error').length} failed.`, 'l-dim');
+}
+
+function uniqueName(name, used) {
+  if (!used.has(name)) { used.add(name); return name; }
+  const dot = name.lastIndexOf('.');
+  const base = dot >= 0 ? name.slice(0, dot) : name;
+  const ext  = dot >= 0 ? name.slice(dot) : '';
+  let i = 2;
+  let candidate = `${base} (${i})${ext}`;
+  while (used.has(candidate)) {
+    i++;
+    candidate = `${base} (${i})${ext}`;
+  }
+  used.add(candidate);
+  return candidate;
 }
 
 async function convertSong(song, opts) {
-  const {meta,bpms,stops,charts}=song.parsed;
-  if (!charts.length) throw new Error('No parseable charts in file');
+  const {meta,bpms,stops}=song.parsed;
+  const charts = song.filteredCharts || song.parsed.charts;
+  if (!charts.length) throw new Error('no parseable charts in file');
 
   // Use the rateConfig captured at click-time, not live DOM values
   const rateConfig = opts.rateConfig;
   const useRates   = rateConfig && charts.length === 1 && song.audioFile;
 
   const zip=new JSZip(), zf=zip.folder(song.outputName);
+  const usedChartNames = new Set();
 
   if (useRates) {
     const chart = charts[0];
 
     let bgName = null;
-    if (song.bgFile) { bgName = song.bgFile.name; zf.file(bgName, await readBuf(song.bgFile)); }
+    if (song.bgOverride) bgName = song.bgOverride.trim();
+    else if (song.bgFile) { bgName = song.bgFile.name; zf.file(bgName, await readBuf(song.bgFile)); }
     else if (meta.background) bgName = meta.background;
 
     for (const rate of rateConfig.rates) {
@@ -765,7 +890,7 @@ async function convertSong(song, opts) {
       const diffName = applyRateDiffName(rateConfig.tmpl, chart.difficulty, rate, bpms);
       const osu  = makeOsu(song, chart, audioName, bgName, opts, rate, diffName);
       const ver  = san(`${meta.artist} - ${meta.title} [${diffName}]`);
-      zf.file(`${ver}.osu`, osu);
+      zf.file(uniqueName(`${ver}.osu`, usedChartNames), osu);
     }
   } else {
     let audioName=null;
@@ -774,14 +899,15 @@ async function convertSong(song, opts) {
     else audioName='audio.mp3';
 
     let bgName=null;
-    if (song.bgFile) { bgName=song.bgFile.name; zf.file(bgName,await readBuf(song.bgFile)); }
+    if (song.bgOverride) bgName = song.bgOverride.trim();
+    else if (song.bgFile) { bgName=song.bgFile.name; zf.file(bgName,await readBuf(song.bgFile)); }
     else if (meta.background) bgName=meta.background;
 
     for (const chart of charts) {
       if (_cancelRequested) throw new Error('CANCELLED');
       const osu=makeOsu(song,chart,audioName,bgName,opts);
       const ver=san(`${meta.artist} - ${meta.title} [${chart.difficulty} ${chart.stepType}]`);
-      zf.file(`${ver}.osu`,osu);
+      zf.file(uniqueName(`${ver}.osu`, usedChartNames),osu);
     }
   }
 
@@ -874,6 +1000,7 @@ function insRate(token) {
 // Rates — audio processing (Web Audio API → WAV)
 // ═══════════════════════════════════
 async function rateAudio(audioFile, rate) {
+  if (!Number.isFinite(rate) || rate <= 0) throw new Error(`invalid rate: ${rate}`);
   const arrayBuffer = await readBuf(audioFile);
 
   // Decode using a temporary context
