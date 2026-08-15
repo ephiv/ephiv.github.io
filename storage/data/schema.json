@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ephiv.github.io/storage/data/field-resources.schema.json",
+  "title": "Field Resource Graph Data",
+  "type": "object",
+  "required": ["fields", "connections"],
+  "properties": {
+    "fields": {
+      "type": "array",
+      "description": "Learning fields that can be searched and displayed as labelled graph points.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description", "resources"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable kebab-case identifier used by connections and URLs.",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable field name shown in search and graph labels."
+          },
+          "description": {
+            "type": "string",
+            "description": "One or two sentence overview of what the field studies."
+          },
+          "aliases": {
+            "type": "array",
+            "description": "Optional search terms, abbreviations, or alternate names.",
+            "items": { "type": "string" },
+            "default": []
+          },
+          "graph": {
+            "type": "object",
+            "description": "Optional visual placement data for static graph renderers.",
+            "properties": {
+              "x": { "type": "number", "minimum": 0, "maximum": 100 },
+              "y": { "type": "number", "minimum": 0, "maximum": 100 }
+            },
+            "required": ["x", "y"]
+          },
+          "resources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["title", "type", "url"],
+              "properties": {
+                "title": { "type": "string" },
+                "type": {
+                  "type": "string",
+                  "enum": ["ebook", "pdf", "lecture", "course", "article", "tool", "dataset"]
+                },
+                "url": { "type": "string", "format": "uri" },
+                "provider": { "type": "string" },
+                "license": { "type": "string" },
+                "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced", "mixed"] },
+                "notes": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Undirected edges between related field ids.",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "relationship"],
+        "properties": {
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "relationship": {
+            "type": "string",
+            "description": "Short explanation of why the fields are connected."
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Optional edge weight for graph layout or filtering."
+          }
+        }
+      }
+    }
+  }
+}

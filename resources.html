@@ -3,34 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ephiv's resources</title>
+  <title>field resource graph</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="site-shell markdown-page">
-    <nav class="site-nav">
-      <a class="site-logo" href="index.html" aria-label="Home">
-        <img src="avatar.jpg" alt="Site logo">
-      </a>
-      <a href="index.html">home</a>
-      <a href="projects.html">projects</a>
-      <a href="resources.html" class="active">resources</a>
-      <a href="https://ephiv.github.io/blog">blog</a>
-    </nav>
+<body class="resource-explorer-page">
+  <main class="resource-explorer" data-home-screen>
+    <section class="field-graph" data-field-graph aria-label="Connected fields graph"></section>
 
-    <p class="eyebrow">documents and stuff</p>
-    <h1>resources</h1>
-    <p class="lead">expect notes, references, docs, guides, wikis, screenshots, etc.</p>
+    <section class="search-panel" aria-labelledby="resource-search-title">
+      <p class="eyebrow">learning map</p>
+      <h1 id="resource-search-title">What field do you want to learn?</h1>
+      <p class="lead">Search for a field, or click a labelled point in the graph, to open curated ebooks, PDFs, and lectures.</p>
 
-    <section class="section-space">
-      <h2>planned sections</h2>
-      <ul>
-        <li>devlogs for future projects</li>
-        <li>useful links i recommend</li>
-      </ul>
+      <form class="resource-search" data-search-form>
+        <label class="sr-only" for="field-search">Search for a field</label>
+        <input id="field-search" data-search-input list="field-options" type="search" placeholder="try Computer Science, Physics, Design..." autocomplete="off" required>
+        <datalist id="field-options"></datalist>
+        <button type="submit">Search</button>
+      </form>
     </section>
-  </div>
-  <script src="scroll-progress.js"></script>
+  </main>
+
+  <main class="result-screen" data-result-screen hidden>
+    <button class="back-button" data-back-button type="button">Back</button>
+    <section class="result-panel" data-result-content aria-live="polite"></section>
+  </main>
+
+  <script src="resources-data.js"></script>
+  <script src="resources-app.js"></script>
 </body>
 </html>

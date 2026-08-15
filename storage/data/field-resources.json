@@ -1,0 +1,45 @@
+{
+  "fields": [
+    {
+      "id": "computer-science",
+      "name": "Computer Science",
+      "description": "Core ideas behind computation, algorithms, systems, and software.",
+      "aliases": ["cs", "programming", "software"],
+      "graph": { "x": 50, "y": 35 },
+      "resources": [
+        { "title": "Structure and Interpretation of Computer Programs", "type": "ebook", "url": "https://mitpress.mit.edu/9780262543231/structure-and-interpretation-of-computer-programs/", "provider": "MIT Press", "level": "intermediate" },
+        { "title": "CS50: Introduction to Computer Science", "type": "lecture", "url": "https://cs50.harvard.edu/x/", "provider": "Harvard University", "level": "beginner" },
+        { "title": "Open Data Structures", "type": "pdf", "url": "https://opendatastructures.org/", "provider": "Open Data Structures", "level": "intermediate" }
+      ]
+    },
+    {
+      "id": "mathematics",
+      "name": "Mathematics",
+      "description": "The language of patterns, proofs, abstraction, quantity, and structure.",
+      "aliases": ["math", "proofs"],
+      "graph": { "x": 31, "y": 26 },
+      "resources": [
+        { "title": "Book of Proof", "type": "ebook", "url": "https://www.people.vcu.edu/~rhammack/BookOfProof/", "provider": "Richard Hammack", "level": "beginner" },
+        { "title": "MIT OpenCourseWare Single Variable Calculus", "type": "lecture", "url": "https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/", "provider": "MIT OpenCourseWare", "level": "beginner" },
+        { "title": "Linear Algebra Done Wrong", "type": "pdf", "url": "https://www.math.brown.edu/streil/papers/LADW/LADW.html", "provider": "Sergei Treil", "level": "intermediate" }
+      ]
+    },
+    {
+      "id": "physics",
+      "name": "Physics",
+      "description": "Models of matter, motion, energy, fields, space, and time.",
+      "aliases": ["mechanics", "matter", "energy"],
+      "graph": { "x": 23, "y": 58 },
+      "resources": [
+        { "title": "The Feynman Lectures on Physics", "type": "ebook", "url": "https://www.feynmanlectures.caltech.edu/", "provider": "Caltech", "level": "mixed" },
+        { "title": "MIT Physics I: Classical Mechanics", "type": "lecture", "url": "https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/", "provider": "MIT OpenCourseWare", "level": "beginner" },
+        { "title": "Light and Matter", "type": "pdf", "url": "https://www.lightandmatter.com/", "provider": "Benjamin Crowell", "level": "beginner" }
+      ]
+    }
+  ],
+  "connections": [
+    { "source": "computer-science", "target": "mathematics", "relationship": "Algorithms and computation rely on discrete math, logic, and proof.", "strength": 0.95 },
+    { "source": "mathematics", "target": "physics", "relationship": "Physics uses mathematical models to describe natural systems.", "strength": 0.9 },
+    { "source": "computer-science", "target": "design", "relationship": "Interactive software depends on usability and interface design.", "strength": 0.72 }
+  ]
+}
